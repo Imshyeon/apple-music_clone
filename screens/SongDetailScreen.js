@@ -1,9 +1,9 @@
 import {View, Text} from 'react-native'
 
 const SongDetailScreen = ({route}) => {
-	const {songId} = route.params
+	const {sidx} = route.params
 
-	console.log('SongDetailScreen - songId', songId)
+	console.log('SongDetailScreen - sidx', sidx)
 
 	return (
 		<View>

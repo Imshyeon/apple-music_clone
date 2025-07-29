@@ -1,9 +1,9 @@
 import {View, Text} from 'react-native'
 
 const FavoriteDetailScreen = ({route}) => {
-	const {favId} = route.params
+	const {favidx} = route.params
 
-	console.log('FavoriteDetailScreen - favId', favId)
+	console.log('FavoriteDetailScreen - favidx', favidx)
 
 	return (
 		<View>

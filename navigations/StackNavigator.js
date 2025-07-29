@@ -15,7 +15,7 @@ import PlaylistDetailScreen from '../screens/PlaylistDetailScreen'
 
 import {colors} from '../helper/constants'
 
-const MainStackNavigator = () => {
+const StackNavigator = () => {
 	return (
 		<Stack.Navigator
 			screenOptions={{
@@ -38,4 +38,4 @@ const MainStackNavigator = () => {
 	)
 }
 
-export default MainStackNavigator
+export default StackNavigator

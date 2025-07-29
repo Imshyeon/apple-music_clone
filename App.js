@@ -3,7 +3,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {StatusBar} from 'expo-status-bar'
 import {NavigationContainer} from '@react-navigation/native'
 
-import MainStackNavigator from './navigations/MainStackNavigator'
+import StackNavigator from './navigations/StackNavigator'
 import navigationConfig from './navigations/navigationConfig'
 
 export default function App() {
@@ -11,7 +11,7 @@ export default function App() {
 		<SafeAreaProvider>
 			<StatusBar style='auto' />
 			<NavigationContainer linking={navigationConfig} r>
-				<MainStackNavigator />
+				<StackNavigator />
 			</NavigationContainer>
 		</SafeAreaProvider>
 	)

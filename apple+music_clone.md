@@ -10,7 +10,7 @@
 > npx expo install expo-linking react-native-screens react-native-safe-area-context expo-constants expo-status-bar<br/>
 > npm install @react-navigation/native react-native-gesture-handler<br/>
 
-### 1. /screens/ArtistsScreen.js, FavoritesScreen.js, PlaylistsScreen.js, SongsScreen.js 생성
+### 1. /screens/ArtistsScreen.js, FavoritesScreen.js, PlaylistsScreen.js, SongsScreen.js, ... 생성
 
 ```js
 import {View, Text} from 'react-native'
@@ -34,6 +34,8 @@ export default ArtistsScreen
 
 ```js
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
+import {BlurView} from 'expo-blur'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 const Tab = createBottomTabNavigator()
 
@@ -42,13 +44,52 @@ import FavoritesScreen from '../screens/FavoritesScreen'
 import PlaylistsScreen from '../screens/PlaylistsScreen'
 import SongsScreen from '../screens/SongsScreen'
 
+import {colors} from '../helper/constants'
+
 const MainBottomTabNavigator = () => {
 	return (
-		<Tab.Navigator initialRoute='Songs'>
-			<Tab.Screen name='Songs' component={SongsScreen} />
-			<Tab.Screen name='Artists' component={ArtistsScreen} />
-			<Tab.Screen name='Favorites' component={FavoritesScreen} />
-			<Tab.Screen name='Playlists' component={PlaylistsScreen} />
+		<Tab.Navigator
+			initialRoute='Favorites'
+			screenOptions={{
+				headerTintColor: colors.text,
+				headerTitleAlign: 'left',
+				headerTitleStyle: {
+					fontSize: 20,
+					fontWeight: 'bold',
+				},
+				headerStyle: {backgroundColor: colors.background},
+				tabBarStyle: {position: 'absolute', paddingTop: 5},
+				tabBarBackground: () => <BlurView intensity={100} tint='light' style={{flex: 1, backgroundColor: colors.background, opacity: 0.9}} />,
+			}}
+		>
+			<Tab.Screen
+				name='Favorites'
+				component={FavoritesScreen}
+				options={{
+					tabBarIcon: ({color, size}) => <Ionicons name='heart' color={color} size={size} />,
+				}}
+			/>
+			<Tab.Screen
+				name='Artists'
+				component={ArtistsScreen}
+				options={{
+					tabBarIcon: ({color, size}) => <Ionicons name='person' color={color} size={size} />,
+				}}
+			/>
+			<Tab.Screen
+				name='Songs'
+				component={SongsScreen}
+				options={{
+					tabBarIcon: ({color, size}) => <Ionicons name='musical-notes' color={color} size={size} />,
+				}}
+			/>
+			<Tab.Screen
+				name='Playlists'
+				component={PlaylistsScreen}
+				options={{
+					tabBarIcon: ({color, size}) => <Ionicons name='list' color={color} size={size} />,
+				}}
+			/>
 		</Tab.Navigator>
 	)
 }
@@ -64,19 +105,37 @@ import {createStackNavigator} from '@react-navigation/stack'
 const Stack = createStackNavigator()
 
 import MainBottomTabNavigator from './MainBottomTabNavigator'
+
 import SongsScreen from '../screens/SongsScreen'
+import SongDetailScreen from '../screens/SongDetailScreen'
 import ArtistsScreen from '../screens/ArtistsScreen'
+import ArtistDetailScreen from '../screens/ArtistDetailScreen'
 import FavoritesScreen from '../screens/FavoritesScreen'
+import FavoriteDetailScreen from '../screens/FavoriteDetailScreen'
 import PlaylistsScreen from '../screens/PlaylistsScreen'
+import PlaylistDetailScreen from '../screens/PlaylistDetailScreen'
+
+import {colors} from '../helper/constants'
 
 const StackNavigator = () => {
 	return (
-		<Stack.Navigator screenOptions={{headerShown: false}}>
+		<Stack.Navigator
+			screenOptions={{
+				headerShown: false,
+				contentStyle: {
+					backgroundColor: colors.background,
+				},
+			}}
+		>
 			<Stack.Screen name='Home' component={MainBottomTabNavigator} />
 			<Stack.Screen name='Songs' component={SongsScreen} />
+			<Stack.Screen name='SongDetail' component={SongDetailScreen} />
 			<Stack.Screen name='Artists' component={ArtistsScreen} />
+			<Stack.Screen name='ArtistDetail' component={ArtistDetailScreen} />
 			<Stack.Screen name='Favorites' component={FavoritesScreen} />
+			<Stack.Screen name='FavoriteDetail' component={FavoriteDetailScreen} />
 			<Stack.Screen name='Playlists' component={PlaylistsScreen} />
+			<Stack.Screen name='PlaylistDetail' component={PlaylistDetailScreen} />
 		</Stack.Navigator>
 	)
 }
@@ -111,10 +170,34 @@ const navigationConfig = {
 		path: 'home',
 		initialRouteName: 'Songs',
 		screens: {
-			Songs: 'songs/:songId',
-			Artists: 'artists/:artistId',
-			Favorites: 'favorites',
-			Playlists: 'playlists/:playlistId',
+			Songs: {
+				initialRouteName: 'Songs',
+				screens: {
+					Songs: 'songs',
+					SongDetail: 'songs/:sidx',
+				},
+			},
+			Artists: {
+				initialRouteName: 'Artists',
+				screens: {
+					Artists: 'artists',
+					ArtistDetail: 'artists/:atidx',
+				},
+			},
+			Favorites: {
+				initialRouteName: 'Favorites',
+				screens: {
+					Favorites: 'favorites',
+					FavoriteDetail: 'favorites/:favidx',
+				},
+			},
+			Playlists: {
+				initialRouteName: 'Playlists',
+				screens: {
+					Playlists: 'playlists',
+					PlaylistDetail: 'playlists/:plidx',
+				},
+			},
 		},
 	},
 }
@@ -129,8 +212,9 @@ export default navigationConfig
 ### 4. App.js
 
 ```js
+import {View} from 'react-native'
+import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {StatusBar} from 'expo-status-bar'
-import {StyleSheet, View} from 'react-native'
 import {NavigationContainer} from '@react-navigation/native'
 
 import StackNavigator from './navigations/StackNavigator'
@@ -138,20 +222,14 @@ import navigationConfig from './navigations/navigationConfig'
 
 export default function App() {
 	return (
-		<View style={styles.container}>
+		<SafeAreaProvider>
+			<StatusBar style='auto' />
 			<NavigationContainer linking={navigationConfig} r>
 				<StackNavigator />
 			</NavigationContainer>
-		</View>
+		</SafeAreaProvider>
 	)
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-	},
-})
 ```
 
 > npx uri-scheme open "exp://<ip주소>:<port>/--/home/favorites" --ios
