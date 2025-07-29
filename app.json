@@ -1,29 +1,31 @@
 {
-  "expo": {
-    "name": "music_app",
-    "slug": "music_app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
-  }
+	"expo": {
+		"name": "apple_music_clone",
+		"slug": "apple_music_clone",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"scheme": "apple_music_clone",
+		"icon": "./assets/icon.png",
+		"userInterfaceStyle": "light",
+		"newArchEnabled": true,
+		"splash": {
+			"image": "./assets/splash-icon.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#000"
+		},
+		"ios": {
+			"supportsTablet": true,
+			"backgroundColor": "#000"
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#000"
+			},
+			"edgeToEdgeEnabled": true
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		}
+	}
 }
