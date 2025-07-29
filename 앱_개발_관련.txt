@@ -1,0 +1,68 @@
+## 클론코딩
+뮤직: https://www.youtube.com/watch?v=9CElrkFwiBU
+뉴스: https://www.youtube.com/watch?v=LuLqC9iLI4Q
+
+## music_app이라는 이름으로 expo app 시작하기
+npx create-expo-app --template blank music_app
+
+## git
+git@github.com-Imshyeon:Imshyeon/apple-music_clone.git
+
+## 3rd-Party
+🔗 https://reactnavigation.org/
+🔗 https://rntp.dev/docs/basics/installation
+
+## APIs
+🔗 https://github.com/whizkydee/Awesome-APIs?tab=readme-ov-file#music
+🔗 https://developer.spotify.com/documentation/web-api
+🔗 https://developer.apple.com/documentation/applemusicapi/
+🔗 https://reccobeats.com/docs/apis/get-recommendation
+
+## Functions
+1. 노래 재생, 가사, flow(애플뮤직)
+2. 재생목록 만들기 및 노래 추가/삭제/순서 조정(드래그 앤 드롭)
+3. 앨범/아티스트 정보 가져오기, 앨범 추가.
+4. 노래 검색, 장르별 노래 보기
+
+## Screens
+1. 검색 - 검색내용 - 특정 결과 내용(아티스트, 앨범)
+2. 내 재생목록 전체 - 특정 재생목록(노래 리스트) - 노래
+3. 둘러보기(장르, 시대, ..)
+
+## 사용해볼 기능
+// 1. Deep Link
+	- https://reactnavigation.org/docs/5.x/deep-linking
+	- 만약 /home 이라는 링크가 있다면? 
+		🔗 https://docs.expo.dev/linking/into-your-app/#test-a-link-using-expo-go
+		npx uri-scheme open exp://127.0.0.1:8081/--/home --ios (Expo Go 사용하는 경우. /--/ 있어야 동작.)
+
+2. 로그인(구글, X, 네이버, 카카오, 애플 등)/로그아웃/토큰 이용한 자동 로그인
+
+
+## 작업 순서
+1. 프로젝트 시작
+
+2. 네비게이션 및 딥링크
+	- Stack, BottomTab Navigator, Deeplink 초기 설정
+
+3. 각 스크린 navigation, 디자인
+	- 스크린 네비게이션.
+	- 각 스크린 디자인
+		1) Songs Screen
+		2) Track Player Screen
+		3) Favorites Screen 
+		4) Artists Screen 
+		5) Playlist Screen
+
+	- 동작 기술하면서 중복될 만한 부분들은 컴포넌트 화 고려하여 동작 기술.
+
+4. 데이터베이스 연결하기
+	- 데이터베이스 어떤식으로 저장하면 될지 기술.
+	- google sql 연결
+	 > npx expo install expo-sqlite
+	 > firebase realtime db: https://console.firebase.google.com/u/7/project/my-music-app-rn-practice-5875e/database/my-music-app-rn-practice-5875e-default-rtdb/data?hl=ko
+	- createContext 이용하기
+
+5. backend 코드 작성
+	- API 이용하여 backend 코드 작성.
+	- 차후에 node.js로 별도로 빼서 관리해볼 예정이니 고려하여 작성.
