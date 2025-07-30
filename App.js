@@ -9,7 +9,7 @@ import navigationConfig from './navigations/navigationConfig'
 export default function App() {
 	return (
 		<SafeAreaProvider>
-			<StatusBar style='auto' />
+			<StatusBar style='light' />
 			<NavigationContainer linking={navigationConfig} r>
 				<StackNavigator />
 			</NavigationContainer>

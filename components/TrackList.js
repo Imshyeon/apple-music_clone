@@ -11,7 +11,12 @@ const TrackList = () => {
 
 	const renderItem = ({item}) => {
 		return (
-			<TouchableOpacity style={[styles.container, {borderTopWidth: item.id === 0 ? 1 : 0, borderTopColor: colors.textMuted, borderBottomWidth: item.id === data.length - 1 ? 1 : 0, borderBottomColor: colors.textMuted}]}>
+			<TouchableOpacity
+				style={[styles.container, {borderTopWidth: item.id === 0 ? 1 : 0, borderTopColor: colors.textMuted, borderBottomWidth: item.id === data.length - 1 ? 1 : 0, borderBottomColor: colors.textMuted}]}
+				onPress={() => {
+					console.log('TrackList-item')
+				}}
+			>
 				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
 				<View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16, borderBottomWidth: item.id === data.length - 1 ? 0 : 1, borderBottomColor: colors.textMuted, paddingBottom: 15}}>
 					<View style={[styles.textContainer, {}]}>
@@ -20,7 +25,13 @@ const TrackList = () => {
 						</Text>
 						<Text style={styles.artist}>{item.artist ?? 'Unknown Artist'}</Text>
 					</View>
-					<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+					<TouchableOpacity
+						onPress={() => {
+							console.log('TrackList-item.Icon')
+						}}
+					>
+						<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+					</TouchableOpacity>
 				</View>
 			</TouchableOpacity>
 		)

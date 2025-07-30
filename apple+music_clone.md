@@ -448,3 +448,57 @@ const styles = StyleSheet.create({
 ```
 
 <img src='./screenshots/1-songs-screen.png' style='width:200px'/>
+
+<br/>
+
+### 2. Songs 페이지 header Animation 추가.
+
+#### SongsScreen.js
+
+```js
+import {useLayoutEffect, useRef} from 'react'
+import {Animated, StyleSheet} from 'react-native'
+import {BlurView} from 'expo-blur'
+
+import {colors} from '../helper/constants'
+import {defaultStyles} from '../helper/styles'
+import TrackList from '../components/TrackList'
+
+const SongsScreen = ({navigation}) => {
+	const scrollY = useRef(new Animated.Value(0)).current
+
+	const handlerScroll = (e) => {
+		const position = e.nativeEvent.contentOffset.y
+		// console.log('SongsScreen - position', position)
+		scrollY.setValue(position)
+	}
+
+	const headerHeight = scrollY.interpolate({
+		inputRange: [0, 100],
+		outputRange: [200, 97.7],
+		extrapolate: 'clamp',
+	})
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerBackground: () => <Animated.View style={{...StyleSheet.absoluteFillObject, backgroundColor: colors.background, height: headerHeight}}></Animated.View>,
+		})
+	}, [headerHeight])
+
+	return (
+		<Animated.ScrollView scrollEventThrottle={10} onScroll={handlerScroll} style={[defaultStyles.container, {flex: 1, position: 'relative', paddingTop: 100}]}>
+			<TrackList />
+		</Animated.ScrollView>
+	)
+}
+
+export default SongsScreen
+```
+
+🔗 [블로그](https://velog.io/@ttoottie/RN-%EC%8A%A4%ED%81%AC%EB%A1%A4%EC%97%90-%EB%94%B0%EB%9D%BC-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8%EB%A5%BC-%EB%8F%99%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%B3%80%ED%99%94%EC%8B%9C%EC%BC%9C%EB%B3%B4%EC%9E%90)를 참고하여 스크롤 시, 헤더의 높이가 변하도록 수정하였다. 원래 react-native-reanimated를 사용할까 했지만 🔗[이 레딧](https://www.reddit.com/r/reactnative/comments/1hrv9c9/how_to_create_this_header_animation_with_react/)의 댓글을 보고 그냥 Animated API를 사용할 수 있을 거 같아 위와같이 추가하였다.
+
+> `아무래도 reanimated나 Animated API나 추가적인 공부가 필요할 듯 싶다. 별도의 프로젝트를 추가하는걸로..ㅎㅎ`
+
+아무튼 위와 같이 스타일을 추가했으므로 기존에 스크롤을 내리지 않은 경우, 서치 바가 보이도록 할 예정이다.
+
+<img src='./screenshots/2-songs-screen-animated.gif' style='width:200px'/>
