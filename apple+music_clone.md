@@ -233,3 +233,218 @@ export default function App() {
 ```
 
 > npx uri-scheme open "exp://<ip주소>:<port>/--/home/favorites" --ios
+
+<br/>
+
+## 🎵 Songs Screen
+
+### 1. flashlist를 이용하여 더미 데이터 표현.
+
+#### 1-1. dummy-data.json
+
+```json
+[
+	{
+		"url": "https://audio.jukehost.co.uk/vTRYaTEbpaYRCxiWGgL2S91mnOuMKfLw",
+		"title": "Guess I'll Never Know",
+		"artist": "TrackTribe",
+		"artwork": "https://f4.bcbits.com/img/a3736661212_65",
+		"rating": 1,
+		"playlist": ["Chill 🌱"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/priWy2vYsWODmQiM6KevNYVLpPJGPZGd",
+		"title": "Memories",
+		"playlist": ["Instrumental 🎵"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/rSmGXxf0OJLipPwFRyvoFKodDOj5VuWf",
+		"title": "Anxiety",
+		"artist": "NEFFEX",
+		"artwork": "https://i1.sndcdn.com/artworks-iCqupgQNLXSjKspS-0CGreg-t500x500.jpg",
+		"playlist": ["Chill 🌱", "Instrumental 🎵", "Rap 🎤"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/ZLdoXNocDAcsgeq6QKtPRHyvlqslNbke",
+		"title": "As You Fade Away",
+		"artist": "NEFFEX",
+		"artwork": "https://i.ytimg.com/vi/JhUFfaArYk8/maxresdefault.jpg",
+		"rating": 1,
+		"playlist": ["Rap 🎤"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/rZ9sshicVlki8Dnm95ps1eWhK95dYgKF",
+		"title": "Cattle",
+		"artist": "Telecasted",
+		"artwork": "https://i.ytimg.com/vi/rxmWdkluHJ0/maxresdefault.jpg",
+		"playlist": ["Chill 🌱"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/ZufGK11EtwQWXge8xYo5EQ02RuJqtr4s",
+		"title": "Desert Brawl",
+		"artist": "Vans in Japan",
+		"artwork": "https://i.ytimg.com/vi/Kk0xLSNMPeQ/maxresdefault.jpg"
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/Tn0JjUOFnQXt94p3CQCA4AkB3weF51Yf",
+		"title": "Changing",
+		"artist": "NEFFEX",
+		"artwork": "https://i1.sndcdn.com/artworks-ZaFhh1AQdO4hqdYb-ssYmcA-t500x500.jpg",
+		"rating": 1,
+		"playlist": ["Rap 🎤"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/yA5v0HqEX7pRLKDkjp3XeFDcksZVv7lr",
+		"title": "El Secreto",
+		"artist": "Yung Logos",
+		"artwork": "https://i.ytimg.com/vi/VMfrx6lbsEQ/maxresdefault.jpg"
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/BTIDaoKPirPWaPpHl8SOsIU8Ge9Zx9Mb",
+		"title": "Go Down Swinging (Instrumental)",
+		"artist": "NEFFEX",
+		"playlist": ["Instrumental 🎵", "Rap 🎤"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/nXa6f08Ojlz1V2SYJ3axYmSa7ot0hblZ",
+		"title": "Hotlanta",
+		"artist": "TrackTribe",
+		"artwork": "https://i.ytimg.com/vi/fwuW0HpXA30/maxresdefault.jpg",
+		"rating": 1
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/cbMVQp4JGHhSNEeCqRjvieiigYpUaE0s",
+		"title": "Take Me Back",
+		"artist": "NEFFEX",
+		"artwork": "https://i1.sndcdn.com/artworks-yaXBlJOtjWvRcNnA-W6spcw-t500x500.jpg",
+		"playlist": ["Rap 🎤"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/Ge9fdTsk6Y9SWoOnC7QJH0n8pprU7rev",
+		"title": "mellow-future-bass-bounce-on-it",
+		"playlist": ["Chill 🌱", "Instrumental 🎵"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/KDOr4agGwHHvikLtk9zukiiDpYNzIp8w",
+		"title": "Outside the Box",
+		"artist": "Patrick Patrikios",
+		"rating": 1
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/K4PdyskIIfRrRotZtwF0EfHkJGjTs9Dy",
+		"title": "Smokey's Lounge",
+		"artist": "TrackTribe",
+		"artwork": "https://i.scdn.co/image/ab67616d0000b2730efb49aab6109fe4c74d6b04"
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/5MLu9yZCOGOCpf9yhdK4uitEv2CZ9fwx",
+		"title": "Sunny Days",
+		"artist": "Anno Domini Beats",
+		"artwork": "https://i1.sndcdn.com/artworks-fJ47RvWYE7weOhay-V5Qjyw-t500x500.jpg",
+		"playlist": ["Chill 🌱"]
+	},
+	{
+		"url": "https://audio.jukehost.co.uk/bnvYr6BoqfoZjrx72rvq3hGXyE6b7Qyz",
+		"title": "Hidden Frozen Lake - Go By Ocean",
+		"artist": "Ryan McCaffrey",
+		"playlist": ["Chill 🌱"]
+	}
+]
+```
+
+<br/>
+
+#### 1-2. SongsScreen.js
+
+```js
+import {Text} from 'react-native'
+import {ScrollView} from 'react-native-gesture-handler'
+import {useLayoutEffect, useRef} from 'react'
+import {useDisplayHeader} from '../helper/useDisplayHeader'
+
+import {defaultStyles} from '../helper/styles'
+import TrackList from '../components/TrackList'
+
+const SongsScreen = ({navigation}) => {
+	const scrollViewRef = useRef(null)
+	// console.log('SongsScreen - scrollViewRef', scrollViewRef)
+	const {headerShown, headerTintColor, headerBackground} = useDisplayHeader(scrollViewRef)
+
+	// useLayoutEffect(() => {
+	// navigation.setOptions({headerShown, headerTintColor, headerBackground})
+	// }, [headerShown, headerTintColor, headerBackground])
+
+	return (
+		<ScrollView ref={scrollViewRef} style={[defaultStyles.container, {flex: 1}]}>
+			<TrackList />
+		</ScrollView>
+	)
+}
+
+export default SongsScreen
+```
+
+#### 1-3. TrackList.js
+
+```js
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import {FlashList} from '@shopify/flash-list'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+import {getMusicData} from '../helper/musicFunctions'
+
+import {defaultArtwork, colors, fontSize} from '../helper/constants'
+
+const TrackList = () => {
+	const data = getMusicData()
+
+	const renderItem = ({item}) => {
+		return (
+			<TouchableOpacity style={[styles.container, {borderTopWidth: item.id === 0 ? 1 : 0, borderTopColor: colors.textMuted, borderBottomWidth: item.id === data.length - 1 ? 1 : 0, borderBottomColor: colors.textMuted}]}>
+				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
+				<View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16, borderBottomWidth: item.id === data.length - 1 ? 0 : 1, borderBottomColor: colors.textMuted, paddingBottom: 15}}>
+					<View style={[styles.textContainer, {}]}>
+						<Text style={styles.title} numberOfLines={1}>
+							{item.title}
+						</Text>
+						<Text style={styles.artist}>{item.artist ?? 'Unknown Artist'}</Text>
+					</View>
+					<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+				</View>
+			</TouchableOpacity>
+		)
+	}
+	return <FlashList data={data} renderItem={renderItem} estimatedItemSize={data.length} keyExtractor={(item) => item.id} contentContainerStyle={{paddingTop: 16, paddingBottom: 100}} />
+}
+
+export default TrackList
+
+const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 16,
+		paddingVertical: 5,
+	},
+	image: {
+		width: 50,
+		height: 50,
+		borderRadius: 10,
+	},
+	textContainer: {
+		flex: 1,
+	},
+	title: {
+		// width: 220,
+		fontSize: fontSize.sm,
+		fontWeight: '500',
+		color: colors.text,
+	},
+	artist: {
+		fontSize: fontSize.xs,
+		color: colors.textMuted,
+	},
+})
+```
+
+<img src='./screenshots/1-songs-screen.png' style='width:200px'/>

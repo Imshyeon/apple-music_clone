@@ -1,0 +1,58 @@
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import {FlashList} from '@shopify/flash-list'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+import {getMusicData} from '../helper/musicFunctions'
+
+import {defaultArtwork, colors, fontSize} from '../helper/constants'
+
+const TrackList = () => {
+	const data = getMusicData()
+
+	const renderItem = ({item}) => {
+		return (
+			<TouchableOpacity style={[styles.container, {borderTopWidth: item.id === 0 ? 1 : 0, borderTopColor: colors.textMuted, borderBottomWidth: item.id === data.length - 1 ? 1 : 0, borderBottomColor: colors.textMuted}]}>
+				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
+				<View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16, borderBottomWidth: item.id === data.length - 1 ? 0 : 1, borderBottomColor: colors.textMuted, paddingBottom: 15}}>
+					<View style={[styles.textContainer, {}]}>
+						<Text style={styles.title} numberOfLines={1}>
+							{item.title}
+						</Text>
+						<Text style={styles.artist}>{item.artist ?? 'Unknown Artist'}</Text>
+					</View>
+					<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+				</View>
+			</TouchableOpacity>
+		)
+	}
+	return <FlashList data={data} renderItem={renderItem} estimatedItemSize={data.length} keyExtractor={(item) => item.id} contentContainerStyle={{paddingTop: 16, paddingBottom: 100}} />
+}
+
+export default TrackList
+
+const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 16,
+		paddingVertical: 5,
+	},
+	image: {
+		width: 50,
+		height: 50,
+		borderRadius: 10,
+	},
+	textContainer: {
+		flex: 1,
+	},
+	title: {
+		// width: 220,
+		fontSize: fontSize.sm,
+		fontWeight: '500',
+		color: colors.text,
+	},
+	artist: {
+		fontSize: fontSize.xs,
+		color: colors.textMuted,
+	},
+})

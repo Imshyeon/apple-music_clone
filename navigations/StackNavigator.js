@@ -22,6 +22,7 @@ const StackNavigator = () => {
 				headerShown: false,
 				contentStyle: {
 					backgroundColor: colors.background,
+					paddingHorizontal: 16,
 				},
 			}}
 		>

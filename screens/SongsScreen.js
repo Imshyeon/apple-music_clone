@@ -4,6 +4,7 @@ import {useLayoutEffect, useRef} from 'react'
 import {useDisplayHeader} from '../helper/useDisplayHeader'
 
 import {defaultStyles} from '../helper/styles'
+import TrackList from '../components/TrackList'
 
 const SongsScreen = ({navigation}) => {
 	const scrollViewRef = useRef(null)
@@ -15,8 +16,8 @@ const SongsScreen = ({navigation}) => {
 	// }, [headerShown, headerTintColor, headerBackground])
 
 	return (
-		<ScrollView ref={scrollViewRef} style={defaultStyles.container}>
-			<Text>Songs</Text>
+		<ScrollView ref={scrollViewRef} style={[defaultStyles.container, {flex: 1}]}>
+			<TrackList />
 		</ScrollView>
 	)
 }

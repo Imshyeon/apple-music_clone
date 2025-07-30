@@ -18,3 +18,6 @@ export const fontSize = {
 export const screenPadding = {
 	horizontal: 24,
 }
+
+export const defaultArtwork = require('../assets/unknown_track.png')
+export const defaultArtist = require('../assets/unknown_artist.png')

@@ -1,6 +1,7 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import {BlurView} from 'expo-blur'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import {StyleSheet} from 'react-native'
 
 const Tab = createBottomTabNavigator()
 
@@ -19,12 +20,31 @@ const MainBottomTabNavigator = () => {
 				headerTintColor: colors.text,
 				headerTitleAlign: 'left',
 				headerTitleStyle: {
-					fontSize: 20,
+					fontSize: 28,
 					fontWeight: 'bold',
 				},
-				headerStyle: {backgroundColor: colors.background},
-				tabBarStyle: {position: 'absolute', paddingTop: 5},
-				tabBarBackground: () => <BlurView intensity={100} tint='light' style={{flex: 1, backgroundColor: colors.background, opacity: 0.9}} />,
+				headerStyle: {
+					backgroundColor: colors.background,
+				},
+				tabBarActiveTintColor: colors.primary,
+				tabBarStyle: {
+					position: 'absolute',
+					borderTopLeftRadius: 20,
+					borderTopRightRadius: 20,
+					borderTopWidth: 0,
+					paddingTop: 8,
+				},
+				tabBarBackground: () => (
+					<BlurView
+						intensity={40}
+						style={{
+							...StyleSheet.absoluteFillObject,
+							overflow: 'hidden',
+							borderTopLeftRadius: 20,
+							borderTopRightRadius: 20,
+						}}
+					/>
+				),
 			}}
 		>
 			<Tab.Screen
