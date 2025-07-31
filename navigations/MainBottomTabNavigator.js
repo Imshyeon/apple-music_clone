@@ -17,15 +17,7 @@ const MainBottomTabNavigator = () => {
 		<Tab.Navigator
 			initialRoute='Favorites'
 			screenOptions={{
-				headerTintColor: colors.text,
-				headerTitleAlign: 'left',
-				headerTitleStyle: {
-					fontSize: 28,
-					fontWeight: 'bold',
-				},
-				headerStyle: {
-					backgroundColor: colors.background,
-				},
+				headerShown: false,
 				tabBarActiveTintColor: colors.primary,
 				tabBarStyle: {
 					position: 'absolute',

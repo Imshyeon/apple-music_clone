@@ -502,3 +502,5 @@ export default SongsScreen
 아무튼 위와 같이 스타일을 추가했으므로 기존에 스크롤을 내리지 않은 경우, 서치 바가 보이도록 할 예정이다.
 
 <img src='./screenshots/2-songs-screen-animated.gif' style='width:200px'/>
+
+##
