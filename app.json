@@ -1,31 +1,43 @@
 {
-	"expo": {
-		"name": "apple_music_clone",
-		"slug": "apple_music_clone",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"scheme": "apple_music_clone",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
-		"newArchEnabled": true,
-		"splash": {
-			"image": "./assets/splash-icon.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#000"
-		},
-		"ios": {
-			"supportsTablet": true,
-			"backgroundColor": "#000"
-		},
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
-				"backgroundColor": "#000"
-			},
-			"edgeToEdgeEnabled": true
-		},
-		"web": {
-			"favicon": "./assets/favicon.png"
-		}
-	}
+  "expo": {
+    "name": "apple_music_clone",
+    "slug": "apple_music_clone",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "apple_music_clone",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "backgroundColor": "#000",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      },
+      "bundleIdentifier": "com.hold-dev.apple-music-clone"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.hold_dev.apple_music_clone"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "55623d96-16de-4f61-a046-b43da933766a"
+      }
+    }
+  }
 }

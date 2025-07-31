@@ -860,3 +860,73 @@ const styles = StyleSheet.create({
 	},
 })
 ```
+
+<br/>
+
+## 💿 Track Player 추가하기
+
+### 1. Setup
+
+🔗 [React Native Track Player Document.](https://rntp.dev/docs/intro)
+🔗 [관련 블로그 포스팅](https://dev.to/amitkumar13/building-a-custom-music-player-in-react-native-with-react-native-track-player-8gb)
+
+#### app.json
+
+🔗 [Expo Document. infoPlist](https://docs.expo.dev/versions/latest/config/app/#infoplist)
+🔗 [Apple Document. UIBackgroundModes](https://developer.apple.com/documentation/bundleresources/information-property-list/uibackgroundmodes)
+
+```json
+{
+	"expo": {
+		"ios": {
+			"supportsTablet": true,
+			"backgroundColor": "#000",
+			"infoPlist": {
+				"UIBackgroundModes": ["audio"]
+			}
+		}
+	}
+}
+```
+
+> 이때, Expo Go로 하니까 오류..! 아마도 build 후 Track Player를 사용할 수 있는걸로 보임 따라서 아래의 명령어 수행
+> npx expo prebuild
+> npx react-native run-ios
+
+#### 로컬 빌드 vs. 클라우드 빌드
+
+1. 로컬빌드
+   > npx react-native (run-ios|run-android)
+
+내 컴퓨터에서 직접 빌드하여 시뮬레이터나 연결된 기기에서 즉시 실행. 로컬 개발용 명령어.
+
+사용자님의 Mac에서 직접 Xcode를 통해 앱을 빌드하고, 즉시 iOS 시뮬레이터에 설치하여 실행해주는 역할을 합니다.
+
+**장점**
+
+- **빠른 개발 속도**: 코드를 조금 수정하고 바로 결과를 확인하는 과정이 매우 빠릅니다.
+- **오프라인 작업 가능**: 인터넷 연결 없이도 빌드와 실행이 가능합니다.
+- **직접적인 디버깅**: Xcode와 같은 네이티브 도구를 직접 사용하여 디버깅하기 용이합니다.
+
+<br/>
+
+2. 클라우드 빌드
+
+   > eas build
+
+Expo의 클라우드 서버에서 앱을 빌드. 이렇게 빌드된 파일은 다른사람에게 공유하거나 스토어에 앱을 제출 시 사용.
+
+프로젝트 전체를 압축해서 Expo의 클라우드 빌드 서버로 보냅니다. 그러면 Expo 서버가 알아서 깨끗한 환경에서 네이티브 앱을 빌드해줍니다.
+
+**사용하는 경우**
+
+- **eas build --profile development**: 개발용 빌드를 만들 때 사용합니다. 이렇게 만들어진 앱은 Expo Go와 비슷하지만, react-native-track-player 같은 네이티브 모듈이 포함된 '나만의 커스텀 Expo Go'라고 생각할 수 있습니다. 이 파일을 실제 기기에 설치해서 테스트할 수 있습니다.
+- **eas build --profile production**: 앱 스토어에 올릴 최종 출시용 앱을 만들 때 사용합니다.
+
+**장점**
+
+- **네이티브 환경 설정 불필요**: 내 컴퓨터에 Xcode나 Android Studio 설정이 복잡하게 얽혀있어도, 클린한 환경에서 빌드해주므로 성공률이 높습니다. (예: M1/M2 Mac에서 구형 프로젝트 빌드 시)
+- **팀원과 공유 용이**: 빌드된 앱 파일(.ipa, .apk)을 링크로 쉽게 공유하여 팀원들이나 테스터들이 설치해볼 수 있습니다.
+- **빌드 자동화**: Github Actions 등과 연동하여 CI/CD 파이프라인을 구축하기 좋습니다.
+
+<br/>

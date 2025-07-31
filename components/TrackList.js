@@ -1,6 +1,7 @@
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
 import {FlashList} from '@shopify/flash-list'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import TrackPlayer, {useActiveTrack} from 'react-native-track-player'
 
 // import {getMusicData} from '../helper/musicFunctions'
 
@@ -10,6 +11,8 @@ const TrackList = ({data}) => {
 	// const data = getMusicData()
 
 	const renderItem = ({item, index}) => {
+		const isActiveTrack = useActiveTrack()?.url === item.url
+
 		return (
 			<TouchableOpacity
 				style={[styles.container]}
