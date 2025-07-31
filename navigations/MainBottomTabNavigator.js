@@ -5,17 +5,17 @@ import {StyleSheet} from 'react-native'
 
 const Tab = createBottomTabNavigator()
 
-import ArtistsScreen from '../screens/ArtistsScreen'
-import FavoritesScreen from '../screens/FavoritesScreen'
-import PlaylistsScreen from '../screens/PlaylistsScreen'
-import SongsScreen from '../screens/SongsScreen'
+import ArtistsStackNavigation from './ArtistsStackNavigation'
+import FavoritesStackNavigation from './FavoritesStackNavigation'
+import PlaylistsStackNavigation from './PlayListsStackNavigation'
+import SongsStackNavigation from './SongsStackNavigation'
 
 import {colors} from '../helper/constants'
 
 const MainBottomTabNavigator = () => {
 	return (
 		<Tab.Navigator
-			initialRoute='Favorites'
+			initialRouteName='Favorites'
 			screenOptions={{
 				headerShown: false,
 				tabBarActiveTintColor: colors.primary,
@@ -41,28 +41,28 @@ const MainBottomTabNavigator = () => {
 		>
 			<Tab.Screen
 				name='Favorites'
-				component={FavoritesScreen}
+				component={FavoritesStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='heart' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Artists'
-				component={ArtistsScreen}
+				component={ArtistsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='person' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Songs'
-				component={SongsScreen}
+				component={SongsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='musical-notes' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Playlists'
-				component={PlaylistsScreen}
+				component={PlaylistsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='list' color={color} size={size} />,
 				}}

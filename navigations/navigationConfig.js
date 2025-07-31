@@ -5,35 +5,35 @@ const prefix = Linking.createURL('/')
 const navigationConfig = {
 	prefixes: [prefix],
 	config: {
-		path: 'home',
-		initialRouteName: 'Songs',
+		// 최상위 네비게이터가 Tab Navigator.
 		screens: {
-			Songs: {
-				initialRouteName: 'Songs',
+			PlaylistsTab: {
+				path: 'playlists', // URL 경로: yourapp://playlists
 				screens: {
-					Songs: 'songs',
-					SongDetail: 'songs/:sidx',
+					// PlaylistsTab 내부의 Stack Navigator에 있는 화면들
+					PlaylistsList: 'playlists', // yourapp://playlists/list
+					PlaylistDetail: 'playlists/:id', // yourapp://playlists/detail/123 (id는 파라미터)
 				},
 			},
-			Artists: {
-				initialRouteName: 'Artists',
+			ArtistsTab: {
+				path: 'artists', // URL 경로: yourapp://artists
 				screens: {
-					Artists: 'artists',
-					ArtistDetail: 'artists/:atidx',
+					ArtistsList: 'artists',
+					ArtistDetail: 'artists/:id',
 				},
 			},
-			Favorites: {
-				initialRouteName: 'Favorites',
+			SongsTab: {
+				path: 'songs', // URL 경로: yourapp://songs
 				screens: {
-					Favorites: 'favorites',
-					FavoriteDetail: 'favorites/:favidx',
+					SongsList: 'songs',
+					SongDetail: 'songs/:id',
 				},
 			},
-			Playlists: {
-				initialRouteName: 'Playlists',
+			FavoritesTab: {
+				path: 'favorites', // URL 경로: yourapp://favorites
 				screens: {
-					Playlists: 'playlists',
-					PlaylistDetail: 'playlists/:plidx',
+					FavoritesList: 'favorites',
+					FavoriteDetail: 'favorites/:id',
 				},
 			},
 		},

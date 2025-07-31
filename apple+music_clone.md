@@ -28,7 +28,17 @@ export default ArtistsScreen
 
 모든 스크린 페이지들 우선 위와 같이 세팅
 
-### 2. /navigators/MainBottomTabNavigator.js, StackNavigator.js 생성
+### 2. 네비게이션 세팅
+
+가장 상단에 BottomTabNavigation을 두고 각각 하위에 native-stack navigation을 이용.
+
+```
+- MainBottomTabNavigator
+	- SongsStackNavigation
+	- ArtistsStackNavigation
+	- PlayListsStackNavigation
+	- FavoritesStackNavigation
+```
 
 #### `MainBottomTabNavigator.js`
 
@@ -36,56 +46,68 @@ export default ArtistsScreen
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import {BlurView} from 'expo-blur'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import {StyleSheet} from 'react-native'
 
 const Tab = createBottomTabNavigator()
 
-import ArtistsScreen from '../screens/ArtistsScreen'
-import FavoritesScreen from '../screens/FavoritesScreen'
-import PlaylistsScreen from '../screens/PlaylistsScreen'
-import SongsScreen from '../screens/SongsScreen'
+import ArtistsStackNavigation from './ArtistsStackNavigation'
+import FavoritesStackNavigation from './FavoritesStackNavigation'
+import PlaylistsStackNavigation from './PlayListsStackNavigation'
+import SongsStackNavigation from './SongsStackNavigation'
 
 import {colors} from '../helper/constants'
 
 const MainBottomTabNavigator = () => {
 	return (
 		<Tab.Navigator
-			initialRoute='Favorites'
+			initialRouteName='Favorites'
 			screenOptions={{
-				headerTintColor: colors.text,
-				headerTitleAlign: 'left',
-				headerTitleStyle: {
-					fontSize: 20,
-					fontWeight: 'bold',
+				headerShown: false,
+				tabBarActiveTintColor: colors.primary,
+				tabBarStyle: {
+					position: 'absolute',
+					borderTopLeftRadius: 20,
+					borderTopRightRadius: 20,
+					borderTopWidth: 0,
+					paddingTop: 8,
 				},
-				headerStyle: {backgroundColor: colors.background},
-				tabBarStyle: {position: 'absolute', paddingTop: 5},
-				tabBarBackground: () => <BlurView intensity={100} tint='light' style={{flex: 1, backgroundColor: colors.background, opacity: 0.9}} />,
+				tabBarBackground: () => (
+					<BlurView
+						intensity={40}
+						style={{
+							...StyleSheet.absoluteFillObject,
+							overflow: 'hidden',
+							borderTopLeftRadius: 20,
+							borderTopRightRadius: 20,
+						}}
+					/>
+				),
 			}}
 		>
 			<Tab.Screen
 				name='Favorites'
-				component={FavoritesScreen}
+				component={FavoritesStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='heart' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Artists'
-				component={ArtistsScreen}
+				component={ArtistsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='person' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Songs'
-				component={SongsScreen}
+				component={SongsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='musical-notes' color={color} size={size} />,
 				}}
 			/>
 			<Tab.Screen
 				name='Playlists'
-				component={PlaylistsScreen}
+				component={PlaylistsStackNavigation}
 				options={{
 					tabBarIcon: ({color, size}) => <Ionicons name='list' color={color} size={size} />,
 				}}
@@ -97,53 +119,153 @@ const MainBottomTabNavigator = () => {
 export default MainBottomTabNavigator
 ```
 
-#### `StackNavigator.js`
+#### `SongsStackNavigation.js`
 
 ```js
-import {createStackNavigator} from '@react-navigation/stack'
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
 
-const Stack = createStackNavigator()
-
-import MainBottomTabNavigator from './MainBottomTabNavigator'
-
-import SongsScreen from '../screens/SongsScreen'
-import SongDetailScreen from '../screens/SongDetailScreen'
-import ArtistsScreen from '../screens/ArtistsScreen'
-import ArtistDetailScreen from '../screens/ArtistDetailScreen'
-import FavoritesScreen from '../screens/FavoritesScreen'
-import FavoriteDetailScreen from '../screens/FavoriteDetailScreen'
-import PlaylistsScreen from '../screens/PlaylistsScreen'
-import PlaylistDetailScreen from '../screens/PlaylistDetailScreen'
+const Stack = createNativeStackNavigator()
 
 import {colors} from '../helper/constants'
 
-const StackNavigator = () => {
+import SongsScreen from '../screens/SongsScreen'
+import SongDetailScreen from '../screens/SongDetailScreen'
+
+const SongsStackNavigation = () => {
 	return (
 		<Stack.Navigator
 			screenOptions={{
-				headerShown: false,
+				headerLargeTitle: true,
+				headerStyle: {
+					backgroundColor: colors.background,
+				},
+				headerTintColor: colors.text,
+				headerBlurEffect: 'systemUltraThinMaterial',
 				contentStyle: {
 					backgroundColor: colors.background,
+					paddingHorizontal: 16,
 				},
 			}}
 		>
-			<Stack.Screen name='Home' component={MainBottomTabNavigator} />
-			<Stack.Screen name='Songs' component={SongsScreen} />
+			<Stack.Screen name='SongsScreen' options={{title: 'Songs'}} component={SongsScreen} />
 			<Stack.Screen name='SongDetail' component={SongDetailScreen} />
-			<Stack.Screen name='Artists' component={ArtistsScreen} />
+		</Stack.Navigator>
+	)
+}
+
+export default SongsStackNavigation
+```
+
+#### `ArtistsStackNavigation.js`
+
+```js
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
+
+const Stack = createNativeStackNavigator()
+
+import {colors} from '../helper/constants'
+
+import ArtistsScreen from '../screens/ArtistsScreen'
+import ArtistDetailScreen from '../screens/ArtistDetailScreen'
+
+const ArtistsStackNavigation = () => {
+	return (
+		<Stack.Navigator
+			screenOptions={{
+				headerLargeTitle: true,
+				headerStyle: {
+					backgroundColor: colors.background,
+				},
+				headerTintColor: colors.text,
+				headerBlurEffect: 'systemUltraThinMaterial',
+				contentStyle: {
+					backgroundColor: colors.background,
+					paddingHorizontal: 16,
+				},
+			}}
+		>
+			<Stack.Screen name='ArtistsScreen' options={{title: 'Artists'}} component={ArtistsScreen} />
 			<Stack.Screen name='ArtistDetail' component={ArtistDetailScreen} />
-			<Stack.Screen name='Favorites' component={FavoritesScreen} />
-			<Stack.Screen name='FavoriteDetail' component={FavoriteDetailScreen} />
-			<Stack.Screen name='Playlists' component={PlaylistsScreen} />
+		</Stack.Navigator>
+	)
+}
+
+export default ArtistsStackNavigation
+```
+
+#### `PlayListsStackNavigation.js`
+
+```js
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
+
+const Stack = createNativeStackNavigator()
+
+import {colors} from '../helper/constants'
+
+import PlaylistsScreen from '../screens/PlaylistsScreen'
+import PlaylistDetailScreen from '../screens/PlaylistDetailScreen'
+
+const PlaylistsStackNavigation = () => {
+	return (
+		<Stack.Navigator
+			screenOptions={{
+				headerLargeTitle: true,
+				headerStyle: {
+					backgroundColor: colors.background,
+				},
+				headerTintColor: colors.text,
+				headerBlurEffect: 'systemUltraThinMaterial',
+				contentStyle: {
+					backgroundColor: colors.background,
+					paddingHorizontal: 16,
+				},
+			}}
+		>
+			<Stack.Screen name='PlaylistsScreen' options={{title: 'Playlists'}} component={PlaylistsScreen} />
 			<Stack.Screen name='PlaylistDetail' component={PlaylistDetailScreen} />
 		</Stack.Navigator>
 	)
 }
 
-export default StackNavigator
+export default PlaylistsStackNavigation
 ```
 
-_단독으로 Home(MainBottomTabNavigator)만 있으면 deep-link가 제대로 적용이 안됨.._
+#### `FavoritesStackNavigation.js`
+
+```js
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
+
+const Stack = createNativeStackNavigator()
+
+import {colors} from '../helper/constants'
+
+import FavoritesScreen from '../screens/FavoritesScreen'
+import FavoriteDetailScreen from '../screens/FavoriteDetailScreen'
+
+const FavoritesStackNavigation = () => {
+	return (
+		<Stack.Navigator
+			screenOptions={{
+				headerLargeTitle: true,
+				headerStyle: {
+					backgroundColor: colors.background,
+				},
+				headerTintColor: colors.text,
+				headerBlurEffect: 'systemUltraThinMaterial',
+				contentStyle: {
+					backgroundColor: colors.background,
+					paddingHorizontal: 16,
+				},
+			}}
+		>
+			<Stack.Screen name='FavoritesScreen' options={{title: 'Favorites'}} component={FavoritesScreen} />
+			<Stack.Screen name='FavoriteDetail' component={FavoriteDetailScreen} />
+		</Stack.Navigator>
+	)
+}
+
+export default FavoritesStackNavigation
+```
 
 ### 3. Deep link
 
@@ -167,35 +289,35 @@ const prefix = Linking.createURL('/')
 const navigationConfig = {
 	prefixes: [prefix],
 	config: {
-		path: 'home',
-		initialRouteName: 'Songs',
+		// 최상위 네비게이터가 Tab Navigator.
 		screens: {
-			Songs: {
-				initialRouteName: 'Songs',
+			PlaylistsTab: {
+				path: 'playlists', // URL 경로: yourapp://playlists
 				screens: {
-					Songs: 'songs',
-					SongDetail: 'songs/:sidx',
+					// PlaylistsTab 내부의 Stack Navigator에 있는 화면들
+					PlaylistsList: 'playlists', // yourapp://playlists/list
+					PlaylistDetail: 'playlists/:id', // yourapp://playlists/detail/123 (id는 파라미터)
 				},
 			},
-			Artists: {
-				initialRouteName: 'Artists',
+			ArtistsTab: {
+				path: 'artists', // URL 경로: yourapp://artists
 				screens: {
-					Artists: 'artists',
-					ArtistDetail: 'artists/:atidx',
+					ArtistsList: 'artists',
+					ArtistDetail: 'artists/:id',
 				},
 			},
-			Favorites: {
-				initialRouteName: 'Favorites',
+			SongsTab: {
+				path: 'songs', // URL 경로: yourapp://songs
 				screens: {
-					Favorites: 'favorites',
-					FavoriteDetail: 'favorites/:favidx',
+					SongsList: 'songs',
+					SongDetail: 'songs/:id',
 				},
 			},
-			Playlists: {
-				initialRouteName: 'Playlists',
+			FavoritesTab: {
+				path: 'favorites', // URL 경로: yourapp://favorites
 				screens: {
-					Playlists: 'playlists',
-					PlaylistDetail: 'playlists/:plidx',
+					FavoritesList: 'favorites',
+					FavoriteDetail: 'favorites/:id',
 				},
 			},
 		},
@@ -217,15 +339,16 @@ import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {StatusBar} from 'expo-status-bar'
 import {NavigationContainer} from '@react-navigation/native'
 
-import StackNavigator from './navigations/StackNavigator'
+// import StackNavigator from './navigations/StackNavigator'
+import MainBottomTabNavigator from './navigations/MainBottomTabNavigator'
 import navigationConfig from './navigations/navigationConfig'
 
 export default function App() {
 	return (
 		<SafeAreaProvider>
-			<StatusBar style='auto' />
-			<NavigationContainer linking={navigationConfig} r>
-				<StackNavigator />
+			<StatusBar style='light' />
+			<NavigationContainer linking={navigationConfig}>
+				<MainBottomTabNavigator />
 			</NavigationContainer>
 		</SafeAreaProvider>
 	)
@@ -451,9 +574,69 @@ const styles = StyleSheet.create({
 
 <br/>
 
-### 2. Songs 페이지 header Animation 추가.
+### 2. Songs 페이지 header에 서치바 추가.
 
 #### SongsScreen.js
+
+```js
+import {ScrollView} from 'react-native'
+
+import {defaultStyles} from '../helper/styles'
+import useNavigationSearch from '../helper/useNavigationSearch'
+
+import TrackList from '../components/TrackList'
+
+const SongsScreen = () => {
+	const {search} = useNavigationSearch()
+
+	return (
+		<ScrollView contentInsetAdjustmentBehavior='automatic' style={[defaultStyles.container, {flex: 1, position: 'relative'}]}>
+			<TrackList />
+		</ScrollView>
+	)
+}
+
+export default SongsScreen
+```
+
+#### useNavigationSearch.js
+
+```js
+import {useState, useCallback, useLayoutEffect} from 'react'
+import {useNavigation} from '@react-navigation/native'
+
+import {colors} from './constants'
+
+const useNavigationSearch = () => {
+	const navigation = useNavigation()
+
+	const [search, setSearch] = useState('')
+
+	const handleSearch = (text) => {
+		setSearch(text)
+	}
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerSearchBarOptions: {
+				placeholder: 'Find in songs',
+				hintTextColor: colors.text,
+				textColor: colors.text,
+				headerIconColor: colors.text,
+				hideWhenScrolling: true,
+				hideNavigationBar: true,
+				onChangeText: (event) => handleSearch(event.nativeEvent.text),
+			},
+		})
+	}, [navigation])
+
+	return {search}
+}
+
+export default useNavigationSearch
+```
+
+#### _Animated를 이용하는 방법(그러나 native-stack navigation을 이용하는게 쉬움)_
 
 ```js
 import {useLayoutEffect, useRef} from 'react'
@@ -503,4 +686,177 @@ export default SongsScreen
 
 <img src='./screenshots/2-songs-screen-animated.gif' style='width:200px'/>
 
-##
+<br/>
+
+### 3. 서치 로직 추가
+
+#### useNavigatiionSearch.js
+
+```js
+import {useState, useLayoutEffect} from 'react'
+import {useNavigation} from '@react-navigation/native'
+
+import {colors} from './constants'
+
+import musics from '../assets/dummy-data.json'
+
+const useNavigationSearch = () => {
+	const navigation = useNavigation()
+
+	const [search, setSearch] = useState('')
+	const [searchResults, setSearchResults] = useState(musics)
+
+	const handleSearch = (text) => {
+		setSearch(text)
+		const searchText = (text || '').toLowerCase()
+		const results = musics.filter((item) => {
+			const title = item.title ? item.title.toLowerCase() : ''
+			const artist = item.artist ? item.artist.toLowerCase() : ''
+			return title.includes(searchText) || artist.includes(searchText)
+		})
+		setSearchResults(results)
+	}
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerStyle: {
+				backgroundColor: 'transparent',
+			},
+			headerBlurEffect: 'dark',
+			headerSearchBarOptions: {
+				placeholder: 'Find in songs',
+				hintTextColor: colors.text,
+				textColor: colors.text,
+				headerIconColor: colors.text,
+				hideWhenScrolling: true,
+				hideNavigationBar: true,
+				onChangeText: (event) => handleSearch(event.nativeEvent.text),
+			},
+		})
+	}, [navigation])
+
+	return {search, searchResults}
+}
+
+export default useNavigationSearch
+```
+
+#### SongsScreen.js
+
+```js
+import {ScrollView} from 'react-native'
+
+import {defaultStyles} from '../helper/styles'
+import useNavigationSearch from '../helper/useNavigationSearch'
+
+import TrackList from '../components/TrackList'
+
+const SongsScreen = () => {
+	const {searchResults} = useNavigationSearch()
+
+	return (
+		<ScrollView contentInsetAdjustmentBehavior='automatic' style={[defaultStyles.container, {flex: 1, position: 'relative'}]}>
+			<TrackList data={searchResults} />
+		</ScrollView>
+	)
+}
+
+export default SongsScreen
+```
+
+#### TrackList.js
+
+```js
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import {FlashList} from '@shopify/flash-list'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+// import {getMusicData} from '../helper/musicFunctions'
+
+import {defaultArtwork, colors, fontSize} from '../helper/constants'
+
+const TrackList = ({data}) => {
+	// const data = getMusicData()
+
+	const renderItem = ({item, index}) => {
+		return (
+			<TouchableOpacity
+				style={[styles.container]}
+				onPress={() => {
+					console.log('TrackList-item')
+				}}
+			>
+				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
+				<View
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						paddingRight: 16,
+						borderBottomWidth: index === data.length - 1 ? 0 : 1,
+						borderBottomColor: colors.textMuted,
+						paddingTop: 5,
+						paddingBottom: 15,
+					}}
+				>
+					<View style={[styles.textContainer, {}]}>
+						<Text style={styles.title} numberOfLines={1}>
+							{item.title}
+						</Text>
+						<Text style={styles.artist}>{item.artist ?? 'Unknown Artist'}</Text>
+					</View>
+					<TouchableOpacity
+						onPress={() => {
+							console.log('TrackList-item.Icon')
+						}}
+					>
+						<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+					</TouchableOpacity>
+				</View>
+			</TouchableOpacity>
+		)
+	}
+	return (
+		<FlashList
+			// data={searchData.length > 0 ? searchData : data}
+			data={data}
+			renderItem={(item, index) => renderItem(item, index)}
+			estimatedItemSize={data.length}
+			keyExtractor={(item) => item.url}
+			contentContainerStyle={{paddingTop: 16, paddingBottom: 100}}
+			ListHeaderComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+			ListFooterComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+		/>
+	)
+}
+
+export default TrackList
+
+const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 16,
+		paddingVertical: 5,
+	},
+	image: {
+		width: 50,
+		height: 50,
+		borderRadius: 10,
+	},
+	textContainer: {
+		flex: 1,
+	},
+	title: {
+		// width: 220,
+		fontSize: fontSize.sm,
+		fontWeight: '500',
+		color: colors.text,
+	},
+	artist: {
+		fontSize: fontSize.xs,
+		color: colors.textMuted,
+	},
+})
+```

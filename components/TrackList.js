@@ -2,23 +2,35 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
 import {FlashList} from '@shopify/flash-list'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-import {getMusicData} from '../helper/musicFunctions'
+// import {getMusicData} from '../helper/musicFunctions'
 
 import {defaultArtwork, colors, fontSize} from '../helper/constants'
 
-const TrackList = () => {
-	const data = getMusicData()
+const TrackList = ({data}) => {
+	// const data = getMusicData()
 
-	const renderItem = ({item}) => {
+	const renderItem = ({item, index}) => {
 		return (
 			<TouchableOpacity
-				style={[styles.container, {borderTopWidth: item.id === 0 ? 1 : 0, borderTopColor: colors.textMuted, borderBottomWidth: item.id === data.length - 1 ? 1 : 0, borderBottomColor: colors.textMuted}]}
+				style={[styles.container]}
 				onPress={() => {
 					console.log('TrackList-item')
 				}}
 			>
 				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
-				<View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16, borderBottomWidth: item.id === data.length - 1 ? 0 : 1, borderBottomColor: colors.textMuted, paddingBottom: 15}}>
+				<View
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						paddingRight: 16,
+						borderBottomWidth: index === data.length - 1 ? 0 : 1,
+						borderBottomColor: colors.textMuted,
+						paddingTop: 5,
+						paddingBottom: 15,
+					}}
+				>
 					<View style={[styles.textContainer, {}]}>
 						<Text style={styles.title} numberOfLines={1}>
 							{item.title}
@@ -36,7 +48,18 @@ const TrackList = () => {
 			</TouchableOpacity>
 		)
 	}
-	return <FlashList data={data} renderItem={renderItem} estimatedItemSize={data.length} keyExtractor={(item) => item.id} contentContainerStyle={{paddingTop: 16, paddingBottom: 100}} />
+	return (
+		<FlashList
+			// data={searchData.length > 0 ? searchData : data}
+			data={data}
+			renderItem={(item, index) => renderItem(item, index)}
+			estimatedItemSize={data.length}
+			keyExtractor={(item) => item.url}
+			contentContainerStyle={{paddingTop: 16, paddingBottom: 100}}
+			ListHeaderComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+			ListFooterComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+		/>
+	)
 }
 
 export default TrackList

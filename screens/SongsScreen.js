@@ -6,11 +6,11 @@ import useNavigationSearch from '../helper/useNavigationSearch'
 import TrackList from '../components/TrackList'
 
 const SongsScreen = () => {
-	const {search} = useNavigationSearch()
+	const {searchResults} = useNavigationSearch()
 
 	return (
 		<ScrollView contentInsetAdjustmentBehavior='automatic' style={[defaultStyles.container, {flex: 1, position: 'relative'}]}>
-			<TrackList />
+			<TrackList data={searchResults} />
 		</ScrollView>
 	)
 }
