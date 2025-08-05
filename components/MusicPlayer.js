@@ -24,6 +24,13 @@ const MusicPlayer = () => {
 	const playerState = usePlaybackState()
 	const {position, duration} = useProgress()
 
+	console.log(`남은 재생시간: ${duration - position}. trackIndex: ${trackIndex}, activeTrack: ${activeTrack?.title}`)
+	// useEffect(() => {
+	// 	if (duration - position === 0) {
+	// 		handleNextTrack()
+	// 	}
+	// }, [position, duration])
+
 	// Track Player Log 설정
 	useLogTrackPlayer()
 
@@ -50,9 +57,11 @@ const MusicPlayer = () => {
 
 	useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
 		console.log('MusicPlayer-useTrackPlayerEvents-event', event)
-		if (event.type === Event.PlaybackActiveTrackChanged && event.nextTrack != null) {
-			const track = await TrackPlayer.getTrack(event.nextTrack)
+		// event의 구조를 살펴보니, event.nextTrack은 없고 lastTrack과 track이 있음
+		if (event.type === Event.PlaybackActiveTrackChanged && event.track != null) {
+			const track = await TrackPlayer.getTrack(event.track)
 			setActiveTrack(track)
+			setTrackIndex(trackIndex)
 		}
 	})
 

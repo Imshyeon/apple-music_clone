@@ -931,13 +931,13 @@ Expo의 클라우드 서버에서 앱을 빌드. 이렇게 빌드된 파일은 �
 
 <br/>
 
-#### React Native Track Player 초기 세팅
+### 2. React Native Track Player 이용하기
 
 🔗 [React Native Track Player docs](https://rntp.dev/docs/basics/getting-started)<br/>
 🔗 [blog | react native player 세팅하기](https://kevins-world.tistory.com/entry/react-native-track-player-%EC%84%B8%ED%8C%85%ED%95%98%EA%B8%B0-1)<br/>
 🔗 [blog | Implementing react-native-track-player with Expo, including lock screen (Part 1: iOS)](https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c)<br/>
 
-**1. `/helper/trackPlayer/services.js`**
+#### 2-1. `/helper/trackPlayer/services.js`
 
 ```js
 // https://dev.to/amitkumar13/building-a-custom-music-player-in-react-native-with-react-native-track-player-8gb
@@ -961,7 +961,7 @@ module.exports = async () => {
 
 <br/>
 
-**2. `index.js`**
+#### 2-2. `index.js`
 
 ```js
 import {registerRootComponent} from 'expo'
@@ -978,7 +978,7 @@ TrackPlayer.registerPlaybackService(() => require('./helper/trackPlayer/services
 
 <br/>
 
-**3. `/helper/trackPlayer/useLogTrackPlayer.js`**
+#### 2-3. `/helper/trackPlayer/useLogTrackPlayer.js`
 
 ```js
 import TrackPlayer, {Event, useTrackPlayerEvents} from 'react-native-track-player'
@@ -1004,7 +1004,34 @@ export const useLogTrackPlayer = () => {
 
 <br/>
 
-**4. `/helper/trackPlayer/useSetupTrackPlayer.js`**
+#### 2-4. `App.js`
+
+```js
+import {SafeAreaProvider} from 'react-native-safe-area-context'
+import {StatusBar} from 'expo-status-bar'
+import {NavigationContainer} from '@react-navigation/native'
+
+// import StackNavigator from './navigations/StackNavigator'
+import MainBottomTabNavigator from './navigations/MainBottomTabNavigator'
+import navigationConfig from './navigations/navigationConfig'
+import MusicPlayer from './components/MusicPlayer'
+
+export default function App() {
+	return (
+		<SafeAreaProvider>
+			<StatusBar style='light' />
+			<NavigationContainer linking={navigationConfig}>
+				<MainBottomTabNavigator />
+				<MusicPlayer />
+			</NavigationContainer>
+		</SafeAreaProvider>
+	)
+}
+```
+
+<br/>
+
+#### 2-5. `/helper/trackPlayer/useSetupTrackPlayer.js`
 
 ```js
 // https://velog.io/@blacksooooo/React-native-react-native-track-player%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-%EC%9D%8C%EC%9B%90-%ED%94%8C%EB%A0%88%EC%9D%B4%EC%96%B4-%EB%A7%8C%EB%93%A4%EA%B8%B0
@@ -1013,8 +1040,8 @@ export const useLogTrackPlayer = () => {
 // 아래 대로 한번 해보기..
 // https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c
 
-import {useEffect, useRef, useState} from 'react'
-import TrackPlayer, {Event, useTrackPlayerEvents, Capability, RepeatMode, State} from 'react-native-track-player'
+import {useEffect, useRef} from 'react'
+import TrackPlayer, {Capability, RepeatMode} from 'react-native-track-player'
 
 import tracks from '../../assets/dummy-data.json'
 
@@ -1025,7 +1052,8 @@ const setupPlayer = async () => {
 		})
 		await TrackPlayer.setVolume(0.03)
 		await TrackPlayer.updateOptions({
-			capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.SeekTo],
+			capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.SeekTo, Capability.Stop],
+			compactCapabilities: [Capability.Play, Capability.Pause],
 		})
 	} catch (e) {
 		console.log('Error setting up player', e)
@@ -1037,22 +1065,22 @@ export const addTracks = async () => {
 	await TrackPlayer.setRepeatMode(RepeatMode.Queue)
 }
 
-export const getPlayerInfo = async () => {
-	const state = (await TrackPlayer.getPlaybackState()).state
-	if (state === State.Playing) {
-		console.log('The Player is playing')
-	}
+// export const getPlayerInfo = async () => {
+// 	const state = (await TrackPlayer.getPlaybackState()).state
+// 	if (state === State.Playing) {
+// 		console.log('The Player is playing')
+// 	}
 
-	let trackIndex = await TrackPlayer.getActiveTrackIndex()
-	let trackObject = await TrackPlayer.getTrack(trackIndex)
-	console.log('The active track is:', trackObject)
+// 	let trackIndex = await TrackPlayer.getActiveTrackIndex()
+// 	let trackObject = await TrackPlayer.getTrack(trackIndex)
+// 	console.log('The active track is:', trackObject)
 
-	const position = await TrackPlayer.getProgress().then((progress) => progress.position)
-	const duration = await TrackPlayer.getDuration().then((duration) => duration)
-	console.log(`${duration - position} seconds left.`)
-}
+// 	const position = await TrackPlayer.getProgress().then((progress) => progress.position)
+// 	const duration = await TrackPlayer.getDuration().then((duration) => duration)
+// 	console.log(`${duration - position} seconds left.`)
+// }
 
-export const useSetupTrackPlayer = ({onLoad}) => {
+export const useSetupTrackPlayer = ({onLoad, onTrackInfo}) => {
 	const isInitialized = useRef(false)
 
 	useEffect(() => {
@@ -1065,7 +1093,7 @@ export const useSetupTrackPlayer = ({onLoad}) => {
 			isInitialized.current = true
 			onLoad?.()
 			await addTracks()
-			await getPlayerInfo()
+			onTrackInfo?.()
 		} catch (e) {
 			isInitialized.current = false
 			console.error(e)
@@ -1076,14 +1104,20 @@ export const useSetupTrackPlayer = ({onLoad}) => {
 
 <br/>
 
-**5. `App.js`**
+#### 2-6. `/components/MusicPlayer.js`
 
 ```js
-import {useCallback} from 'react'
-import {SafeAreaProvider} from 'react-native-safe-area-context'
-import {StatusBar} from 'expo-status-bar'
-import {NavigationContainer} from '@react-navigation/native'
+import {useState, useEffect, useCallback} from 'react'
+import {View, Text, StyleSheet, TouchableOpacity, Dimensions, Image} from 'react-native'
+import TrackPlayer, {State, Event, usePlaybackState, useProgress, useTrackPlayerEvents} from 'react-native-track-player'
 import * as SplashScreen from 'expo-splash-screen'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+import {useSetupTrackPlayer} from '../helper/trackPlayer/useSetupTrackPlayer'
+import {useLogTrackPlayer} from '../helper/trackPlayer/useLogTrackPlayer'
+
+import {defaultArtwork} from '../helper/constants'
+import tracks from '../assets/dummy-data.json'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -1092,44 +1126,201 @@ SplashScreen.setOptions({
 	fade: true,
 })
 
-// Track Player
-import TrackPlayer from 'react-native-track-player'
+const MusicPlayer = () => {
+	const [trackIndex, setTrackIndex] = useState(0)
+	const [activeTrack, setActiveTrack] = useState(null)
 
-// import StackNavigator from './navigations/StackNavigator'
-import MainBottomTabNavigator from './navigations/MainBottomTabNavigator'
-import navigationConfig from './navigations/navigationConfig'
+	const playerState = usePlaybackState()
+	const {position, duration} = useProgress()
 
-import {useSetupTrackPlayer} from './helper/trackPlayer/useSetupTrackPlayer'
-import {useLogTrackPlayer} from './helper/trackPlayer/useLogTrackPlayer'
-
-export default function App() {
+	// Track Player Log 설정
 	useLogTrackPlayer()
 
+	// Track Player 세팅 1 - SplashScreen 숨기기
 	const handleTrackPlayerLoad = useCallback(() => {
 		SplashScreen.hideAsync()
 	}, [])
 
+	// Track Player 세팅 2 - 현재 재생 중인 트랙 정보 가져오기
+	const handleTrackInfo = useCallback(async () => {
+		let trackIndex = await TrackPlayer.getActiveTrackIndex()
+		if (trackIndex !== null && trackIndex >= 0) {
+			let trackObject = await TrackPlayer.getTrack(trackIndex)
+			setActiveTrack(trackObject)
+			setTrackIndex(trackIndex)
+		}
+	}, [])
+
+	// Track Player 세팅 3 - 트랙 기본 세팅
 	useSetupTrackPlayer({
 		onLoad: handleTrackPlayerLoad,
+		onTrackInfo: handleTrackInfo,
 	})
 
+	useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+		console.log('MusicPlayer-useTrackPlayerEvents-event', event)
+		if (event.type === Event.PlaybackActiveTrackChanged && event.track != null) {
+			const track = await TrackPlayer.getTrack(event.track)
+			setActiveTrack(track)
+			setTrackIndex(trackIndex)
+		}
+	})
+
+	const togglePlayback = async (playerState) => {
+		const currentTrack = await TrackPlayer.getActiveTrack()
+		if (currentTrack !== null) {
+			if (playerState.state === State.Paused || playerState.state === State.Ready) {
+				console.log('MusicPlayer-togglePlayback-play')
+				await TrackPlayer.play()
+			} else {
+				console.log('MusicPlayer-togglePlayback-pause')
+				await TrackPlayer.pause()
+			}
+		}
+	}
+
+	const handleNextTrack = async () => {
+		console.log('MusicPlayer-handleNextTrack-trackIndex', trackIndex, 'tracks.length', tracks.length)
+		if (trackIndex < tracks.length - 1) {
+			await TrackPlayer.skipToNext()
+			const nextTrack = await TrackPlayer.getTrack(trackIndex + 1)
+			console.log('MusicPlayer-handleNextTrack-nextTrack', nextTrack)
+			setTrackIndex(trackIndex + 1)
+			setActiveTrack(nextTrack)
+		}
+	}
+
+	// 미니 플레이어 UI
 	return (
-		<SafeAreaProvider>
-			<StatusBar style='light' />
-			<NavigationContainer linking={navigationConfig}>
-				<MainBottomTabNavigator />
-			</NavigationContainer>
-		</SafeAreaProvider>
+		<TouchableOpacity style={styles.miniPlayerContainer}>
+			<View style={styles.header}>
+				<Image source={activeTrack?.artwork ? {uri: activeTrack?.artwork} : defaultArtwork} style={styles.image} />
+				<Text style={styles.title}>{activeTrack?.title || '음악을 선택하세요'}</Text>
+			</View>
+			<View style={styles.controls}>
+				{playerState.state === State.Playing ? (
+					<TouchableOpacity onPress={() => togglePlayback(playerState)}>
+						<Ionicons name='pause' size={24} color='white' />
+					</TouchableOpacity>
+				) : (
+					<TouchableOpacity onPress={() => togglePlayback(playerState)}>
+						<Ionicons name='play' size={24} color='white' />
+					</TouchableOpacity>
+				)}
+				<TouchableOpacity onPress={handleNextTrack}>
+					<Ionicons name='play-forward' size={24} color='white' />
+				</TouchableOpacity>
+			</View>
+		</TouchableOpacity>
 	)
 }
+
+export default MusicPlayer
+
+const {width} = Dimensions.get('window')
+
+const styles = StyleSheet.create({
+	miniPlayerContainer: {
+		position: 'absolute',
+		bottom: 83,
+		left: 10,
+		right: 10,
+		height: 60,
+		backgroundColor: 'rgba(0,0,0,0.9)',
+		borderRadius: 10,
+		padding: 10,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+	header: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+	image: {
+		width: 40,
+		height: 40,
+		borderRadius: 10,
+	},
+	title: {
+		fontSize: 16,
+		fontWeight: 'bold',
+		color: 'white',
+	},
+	controls: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+})
 ```
 
 <br/>
 
----
+### 3. 에러 발생 및 해결
 
-```js
+> 에러: 음원 재생이 시작된 직후 playing 상태로 전환되었다가 바로 오류가 발생
 
+```bash
+LOG  Playback state changed - event: {"state": "playing", "type": "playback-state"}
+...
+WARN  An error occurred while playing the track - event: {"error": "The operation couldn’t be completed. (SwiftAudioEx.AudioPlayerError.PlaybackError error 3.)", "type": "playback-error"}
+LOG  Playback state changed - event: {"error": {"code": "ios_playback_failed", "message": "Playback of the track failed"}, "state": "error", "type": "playback-state"}
 ```
 
-<br/>
+SwiftAudioEx.AudioPlayerError.PlaybackError 오류는 주로 iOS에서 오디오 파일을 불러오거나 재생하는 과정에서 문제가 발생했을 때 나타납니다. 특히 [AudioToolbox] timed out 로그는 음원 파일을 로드하는 데 시간이 초과되었음을 의미하며, 이는 다음과 같은 원인일 수 있습니다.
+
+1. 음원 URL 문제: 현재 해당 주소가 유효하지 않거나, 서버에서 응답이 없는 경우 발생
+2. 오디오 포맷 문제: iOS에서 지원하지 않는 오디오 형식이거나 파일 손상
+3. 네트워크 보안 정책(ATS): iOS에서는 기본적으로 HTTPS 프로토콜을 사용해야 합니다. HTTP 프로토콜을 사용하는 URL의 음원을 재생하려고 할 때 App Transport Security (ATS) 설정이 되어있지 않으면 재생이 차단될 수 있습니다.
+
+#### 1번 상황에 대한 확인. 문제 없음.
+
+```bash
+curl -I "https://audio.jukehost.co.uk/vTRYaTEbpaYRCxiWGgL2S91mnOuMKfLw"
+
+server: cloudflare
+access-control-allow-methods: GET, POST, OPTIONS
+pragma: no-cache
+cache-control: public, max-age=2073600
+expires: Fri, 29 Aug 2025 01:24:23 GMT
+last-modified: Sun, 17 Mar 2024 20:36:51 GMT
+accept-ranges: 0-8182632
+access-control-allow-origin: *
+age: 5516
+cf-cache-status: HIT
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=n4pWUep0Ts9W8Oq8ZPnqegN8CKoG76Nt%2FD2frvs%2FnVD9pEiWqlpGTFPpDrUkj7IzWO9J%2F18LSnN%2FlHJNJYhlE5dfejkJTA8%2FWo0baVVWi%2FCC3i1j"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: 96a3054f29e7e39c-NRT
+alt-svc: h3=":443"; ma=86400
+```
+
+#### 3번 상황에 대한 확인.
+
+jukehost.co.uk의 URL은 https를 사용하고 있음에도 불구하고 문제가 발생. 이는 jukehost.co.uk 도메인이 ATS의 요구사항(예: 특정 TLS 버전, 암호화 스위트 등)을 충족하지 못할 수 있음을 시사함.
+
+이를 해결하기 위해 Info.plist 파일에 예외 도메인을 추가하여 해당 도메인에 대한 ATS 제한을 완화해야 함. ios/applemusicclone/Info.plist 파일을 열어 NSAppTransportSecurity 설정을 추가.
+
+```xml
+<!-- Info.plist -->
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <false/>
+  <key>NSAllowsLocalNetworking</key>
+  <true/>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <key>jukehost.co.uk</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+  </dict>
+</dict>
+```
+
+NSAppTransportSecurity 설정에 jukehost.co.uk 도메인을 예외 처리하는 코드를 추가. NSExceptionDomains 키를 사용하여 특정 도메인에 대한 ATS 규칙을 설정.

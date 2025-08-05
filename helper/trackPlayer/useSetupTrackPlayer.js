@@ -4,10 +4,10 @@
 // 아래 대로 한번 해보기..
 // https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c
 
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useRef} from 'react'
 import TrackPlayer, {Capability, RepeatMode} from 'react-native-track-player'
 
-import trackData from '../../assets/dummy-data.json'
+import tracks from '../../assets/dummy-data.json'
 
 const setupPlayer = async () => {
 	try {
@@ -25,7 +25,7 @@ const setupPlayer = async () => {
 }
 
 export const addTracks = async () => {
-	await TrackPlayer.add(trackData)
+	await TrackPlayer.add(tracks)
 	await TrackPlayer.setRepeatMode(RepeatMode.Queue)
 }
 
@@ -46,7 +46,6 @@ export const addTracks = async () => {
 
 export const useSetupTrackPlayer = ({onLoad, onTrackInfo}) => {
 	const isInitialized = useRef(false)
-	const [tracks, setTracks] = useState(trackData)
 
 	useEffect(() => {
 		handleSetup()
@@ -64,6 +63,4 @@ export const useSetupTrackPlayer = ({onLoad, onTrackInfo}) => {
 			console.error(e)
 		}
 	}
-
-	return tracks
 }
