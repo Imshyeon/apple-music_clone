@@ -5,7 +5,7 @@
 // https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c
 
 import {useEffect, useRef} from 'react'
-import TrackPlayer, {Capability, RepeatMode} from 'react-native-track-player'
+import TrackPlayer, {AppKilledPlaybackBehavior, Capability, RepeatMode} from 'react-native-track-player'
 
 import tracks from '../../assets/dummy-data.json'
 
@@ -18,6 +18,9 @@ const setupPlayer = async () => {
 		await TrackPlayer.updateOptions({
 			capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.SeekTo, Capability.Stop],
 			compactCapabilities: [Capability.Play, Capability.Pause],
+			android: {
+				appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback,
+			},
 		})
 	} catch (e) {
 		console.log('Error setting up player', e)

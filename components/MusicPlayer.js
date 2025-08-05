@@ -1,13 +1,14 @@
-import {useState, useEffect, useCallback} from 'react'
-import {View, Text, StyleSheet, TouchableOpacity, Dimensions, Image} from 'react-native'
+import {useState, useCallback} from 'react'
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native'
 import TrackPlayer, {State, Event, usePlaybackState, useProgress, useTrackPlayerEvents} from 'react-native-track-player'
 import * as SplashScreen from 'expo-splash-screen'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {useSetupTrackPlayer} from '../helper/trackPlayer/useSetupTrackPlayer'
 import {useLogTrackPlayer} from '../helper/trackPlayer/useLogTrackPlayer'
-
 import {defaultArtwork} from '../helper/constants'
+import {useMusicState, useMusicDispatch} from '../context/musicAppState'
+
 import tracks from '../assets/dummy-data.json'
 
 SplashScreen.preventAutoHideAsync()
@@ -17,14 +18,14 @@ SplashScreen.setOptions({
 	fade: true,
 })
 
-const MusicPlayer = () => {
-	const [trackIndex, setTrackIndex] = useState(0)
-	const [activeTrack, setActiveTrack] = useState(null)
+const MusicPlayer = ({isMiniPlayer = true}) => {
+	const state = useMusicState()
+	const dispatch = useMusicDispatch()
 
 	const playerState = usePlaybackState()
 	const {position, duration} = useProgress()
 
-	console.log(`남은 재생시간: ${duration - position}. trackIndex: ${trackIndex}, activeTrack: ${activeTrack?.title}`)
+	console.log(`남은 재생시간: ${duration - position}. trackIndex: ${state.activeTrackIndex}, activeTrack: ${state.activeTrack?.title}`)
 	// useEffect(() => {
 	// 	if (duration - position === 0) {
 	// 		handleNextTrack()
@@ -44,8 +45,8 @@ const MusicPlayer = () => {
 		let trackIndex = await TrackPlayer.getActiveTrackIndex()
 		if (trackIndex !== null && trackIndex >= 0) {
 			let trackObject = await TrackPlayer.getTrack(trackIndex)
-			setActiveTrack(trackObject)
-			setTrackIndex(trackIndex)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: trackObject})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: trackIndex})
 		}
 	}, [])
 
@@ -60,8 +61,8 @@ const MusicPlayer = () => {
 		// event의 구조를 살펴보니, event.nextTrack은 없고 lastTrack과 track이 있음
 		if (event.type === Event.PlaybackActiveTrackChanged && event.track != null) {
 			const track = await TrackPlayer.getTrack(event.track)
-			setActiveTrack(track)
-			setTrackIndex(trackIndex)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: track})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: event.track})
 		}
 	})
 
@@ -79,22 +80,30 @@ const MusicPlayer = () => {
 	}
 
 	const handleNextTrack = async () => {
-		console.log('MusicPlayer-handleNextTrack-trackIndex', trackIndex, 'tracks.length', tracks.length)
-		if (trackIndex < tracks.length - 1) {
-			await TrackPlayer.skipToNext()
-			const nextTrack = await TrackPlayer.getTrack(trackIndex + 1)
-			console.log('MusicPlayer-handleNextTrack-nextTrack', nextTrack)
-			setTrackIndex(trackIndex + 1)
-			setActiveTrack(nextTrack)
+		console.log('MusicPlayer-handleNextTrack-trackIndex', state.activeTrackIndex, 'tracks.length', tracks.length)
+		if (state.activeTrackIndex < tracks.length - 1) {
+			const nextTrackIndex = state.activeTrackIndex + 1
+			const nextTrack = await TrackPlayer.getTrack(nextTrackIndex)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: nextTrack})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: nextTrackIndex})
+			// await TrackPlayer.skipToNext()
 		}
+	}
+
+	if (!isMiniPlayer) {
+		return (
+			<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+				<Text>MusicPlayer</Text>
+			</View>
+		)
 	}
 
 	// 미니 플레이어 UI
 	return (
 		<TouchableOpacity style={styles.miniPlayerContainer}>
 			<View style={styles.header}>
-				<Image source={activeTrack?.artwork ? {uri: activeTrack?.artwork} : defaultArtwork} style={styles.image} />
-				<Text style={styles.title}>{activeTrack?.title || '음악을 선택하세요'}</Text>
+				<Image source={state.activeTrack?.artwork ? {uri: state.activeTrack?.artwork} : defaultArtwork} style={styles.image} />
+				<Text style={styles.title}>{state.activeTrack?.title || '음악을 선택하세요'}</Text>
 			</View>
 			<View style={styles.controls}>
 				{playerState.state === State.Playing ? (
@@ -116,8 +125,6 @@ const MusicPlayer = () => {
 
 export default MusicPlayer
 
-const {width} = Dimensions.get('window')
-
 const styles = StyleSheet.create({
 	miniPlayerContainer: {
 		position: 'absolute',
@@ -125,7 +132,7 @@ const styles = StyleSheet.create({
 		left: 10,
 		right: 10,
 		height: 60,
-		backgroundColor: 'rgba(0,0,0,0.9)',
+		backgroundColor: 'rgba(0,0,0,0.95)',
 		borderRadius: 10,
 		padding: 10,
 		flexDirection: 'row',

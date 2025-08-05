@@ -7,13 +7,17 @@ import MainBottomTabNavigator from './navigations/MainBottomTabNavigator'
 import navigationConfig from './navigations/navigationConfig'
 import MusicPlayer from './components/MusicPlayer'
 
+import MusicStoreProvider from './context/musicAppState'
+
 export default function App() {
 	return (
 		<SafeAreaProvider>
 			<StatusBar style='light' />
 			<NavigationContainer linking={navigationConfig}>
-				<MainBottomTabNavigator />
-				<MusicPlayer />
+				<MusicStoreProvider>
+					<MainBottomTabNavigator />
+					<MusicPlayer />
+				</MusicStoreProvider>
 			</NavigationContainer>
 		</SafeAreaProvider>
 	)

@@ -1324,3 +1324,365 @@ jukehost.co.uk의 URL은 https를 사용하고 있음에도 불구하고 문제�
 ```
 
 NSAppTransportSecurity 설정에 jukehost.co.uk 도메인을 예외 처리하는 코드를 추가. NSExceptionDomains 키를 사용하여 특정 도메인에 대한 ATS 규칙을 설정.
+
+다시 빌드 후 확인하면 아래와 같이 정상적으로 재생이 되고 노래가 끝나면 다음 노래로 자연스럽게 넘어감.
+
+<img src='./screenshots/3-rn-track-player.png' style='width:200px'/>
+
+<br/>
+
+### 4. 백그라운드에서도 작동하도록 설정하기
+
+🔗 [React Native Track Player | Background Mode](https://rntp.dev/docs/basics/background-mode)
+
+> open apple-music_clone/ios/applemusicclone.xcworkspace
+
+<img src='./screenshots/4-rn-background.png' style='width:400px'/>
+
+<br>
+
+### 5. context를 도입하여 TrackList에서 재생할 노래 선택하기
+
+#### 5-1. `/context/musicAppState.js`
+
+```js
+import {createContext, useReducer, useContext} from 'react'
+
+const MusicState = createContext()
+const MusicDispatch = createContext()
+
+const initialState = {
+	activeTrack: null,
+	activeTrackIndex: 0,
+}
+
+const reducer = (state, action) => {
+	switch (action.type) {
+		case 'SET_ACTIVE_TRACK':
+			return {...state, activeTrack: action.payload}
+		case 'SET_ACTIVE_TRACK_INDEX':
+			return {...state, activeTrackIndex: action.payload}
+		default:
+			return state
+	}
+}
+
+const MusicStoreProvider = ({children}) => {
+	const [state, dispatch] = useReducer(reducer, initialState)
+
+	return (
+		<MusicState.Provider value={state}>
+			<MusicDispatch.Provider value={dispatch}>{children}</MusicDispatch.Provider>
+		</MusicState.Provider>
+	)
+}
+
+export const useMusicState = () => {
+	const context = useContext(MusicState)
+	if (!context) {
+		throw new Error('useMusicState must be used within a MusicStoreProvider')
+	}
+	return context
+}
+
+export const useMusicDispatch = () => {
+	const context = useContext(MusicDispatch)
+	if (!context) {
+		throw new Error('useMusicDispatch must be used within a MusicStoreProvider')
+	}
+	return context
+}
+
+export default MusicStoreProvider
+```
+
+MusicPlayer 뿐만 아니라 TrackList에서 아이템을 클릭했을 때에도 재생되는 노래 상태를 업데이트 할 수 있도록 Context API를 이용하여 상태 관리.
+
+<br/>
+
+#### 5-2. `/components/MusicPlayer.js`
+
+```js
+import {useState, useCallback} from 'react'
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native'
+import TrackPlayer, {State, Event, usePlaybackState, useProgress, useTrackPlayerEvents} from 'react-native-track-player'
+import * as SplashScreen from 'expo-splash-screen'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+import {useSetupTrackPlayer} from '../helper/trackPlayer/useSetupTrackPlayer'
+import {useLogTrackPlayer} from '../helper/trackPlayer/useLogTrackPlayer'
+import {defaultArtwork} from '../helper/constants'
+import {useMusicState, useMusicDispatch} from '../context/musicAppState'
+
+import tracks from '../assets/dummy-data.json'
+
+SplashScreen.preventAutoHideAsync()
+
+SplashScreen.setOptions({
+	duration: 1000,
+	fade: true,
+})
+
+const MusicPlayer = ({isMiniPlayer = true}) => {
+	const state = useMusicState()
+	const dispatch = useMusicDispatch()
+
+	const playerState = usePlaybackState()
+	const {position, duration} = useProgress()
+
+	console.log(`남은 재생시간: ${duration - position}. trackIndex: ${state.activeTrackIndex}, activeTrack: ${state.activeTrack?.title}`)
+	// useEffect(() => {
+	// 	if (duration - position === 0) {
+	// 		handleNextTrack()
+	// 	}
+	// }, [position, duration])
+
+	// Track Player Log 설정
+	useLogTrackPlayer()
+
+	// Track Player 세팅 1 - SplashScreen 숨기기
+	const handleTrackPlayerLoad = useCallback(() => {
+		SplashScreen.hideAsync()
+	}, [])
+
+	// Track Player 세팅 2 - 현재 재생 중인 트랙 정보 가져오기
+	const handleTrackInfo = useCallback(async () => {
+		let trackIndex = await TrackPlayer.getActiveTrackIndex()
+		if (trackIndex !== null && trackIndex >= 0) {
+			let trackObject = await TrackPlayer.getTrack(trackIndex)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: trackObject})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: trackIndex})
+		}
+	}, [])
+
+	// Track Player 세팅 3 - 트랙 기본 세팅
+	useSetupTrackPlayer({
+		onLoad: handleTrackPlayerLoad,
+		onTrackInfo: handleTrackInfo,
+	})
+
+	useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+		console.log('MusicPlayer-useTrackPlayerEvents-event', event)
+		// event의 구조를 살펴보니, event.nextTrack은 없고 lastTrack과 track이 있음
+		if (event.type === Event.PlaybackActiveTrackChanged && event.track != null) {
+			const track = await TrackPlayer.getTrack(event.track)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: track})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: event.track})
+		}
+	})
+
+	const togglePlayback = async (playerState) => {
+		const currentTrack = await TrackPlayer.getActiveTrack()
+		if (currentTrack !== null) {
+			if (playerState.state === State.Paused || playerState.state === State.Ready) {
+				console.log('MusicPlayer-togglePlayback-play')
+				await TrackPlayer.play()
+			} else {
+				console.log('MusicPlayer-togglePlayback-pause')
+				await TrackPlayer.pause()
+			}
+		}
+	}
+
+	const handleNextTrack = async () => {
+		console.log('MusicPlayer-handleNextTrack-trackIndex', state.activeTrackIndex, 'tracks.length', tracks.length)
+		if (state.activeTrackIndex < tracks.length - 1) {
+			const nextTrackIndex = state.activeTrackIndex + 1
+			const nextTrack = await TrackPlayer.getTrack(nextTrackIndex)
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: nextTrack})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: nextTrackIndex})
+			// await TrackPlayer.skipToNext()
+		}
+	}
+
+	if (!isMiniPlayer) {
+		return (
+			<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+				<Text>MusicPlayer</Text>
+			</View>
+		)
+	}
+
+	// 미니 플레이어 UI
+	return (
+		<TouchableOpacity style={styles.miniPlayerContainer}>
+			<View style={styles.header}>
+				<Image source={state.activeTrack?.artwork ? {uri: state.activeTrack?.artwork} : defaultArtwork} style={styles.image} />
+				<Text style={styles.title}>{state.activeTrack?.title || '음악을 선택하세요'}</Text>
+			</View>
+			<View style={styles.controls}>
+				{playerState.state === State.Playing ? (
+					<TouchableOpacity onPress={() => togglePlayback(playerState)}>
+						<Ionicons name='pause' size={24} color='white' />
+					</TouchableOpacity>
+				) : (
+					<TouchableOpacity onPress={() => togglePlayback(playerState)}>
+						<Ionicons name='play' size={24} color='white' />
+					</TouchableOpacity>
+				)}
+				<TouchableOpacity onPress={handleNextTrack}>
+					<Ionicons name='play-forward' size={24} color='white' />
+				</TouchableOpacity>
+			</View>
+		</TouchableOpacity>
+	)
+}
+
+export default MusicPlayer
+
+const styles = StyleSheet.create({
+	miniPlayerContainer: {
+		position: 'absolute',
+		bottom: 83,
+		left: 10,
+		right: 10,
+		height: 60,
+		backgroundColor: 'rgba(0,0,0,0.95)',
+		borderRadius: 10,
+		padding: 10,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+	header: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+	image: {
+		width: 40,
+		height: 40,
+		borderRadius: 10,
+	},
+	title: {
+		fontSize: 16,
+		fontWeight: 'bold',
+		color: 'white',
+	},
+	controls: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+})
+```
+
+기존에 `useState`를 통해 상태관리를 하던 대신, Context API로 교체.
+
+<br/>
+
+#### 5-3. `/components/TrackList.js`
+
+```js
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import {FlashList} from '@shopify/flash-list'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import TrackPlayer from 'react-native-track-player'
+
+import {useMusicState, useMusicDispatch} from '../context/musicAppState'
+// import {getMusicData} from '../helper/musicFunctions'
+
+import {defaultArtwork, colors, fontSize} from '../helper/constants'
+
+const TrackList = ({data}) => {
+	// const data = getMusicData()
+	const state = useMusicState()
+	const dispatch = useMusicDispatch()
+
+	const renderItem = ({item, index}) => {
+		return (
+			<TouchableOpacity
+				style={[styles.container]}
+				onPress={() => {
+					dispatch({type: 'SET_ACTIVE_TRACK', payload: item})
+					dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: index})
+					TrackPlayer.play()
+				}}
+			>
+				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
+				<View
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						paddingRight: 16,
+						borderBottomWidth: index === data.length - 1 ? 0 : 1,
+						borderBottomColor: colors.textMuted,
+						paddingTop: 5,
+						paddingBottom: 15,
+					}}
+				>
+					<View style={[styles.textContainer, {}]}>
+						<Text style={styles.title} numberOfLines={1}>
+							{item.title}
+						</Text>
+						<Text style={styles.artist}>{item.artist ?? 'Unknown Artist'}</Text>
+					</View>
+					<TouchableOpacity
+						onPress={() => {
+							console.log('TrackList-item.Icon')
+						}}
+					>
+						<Ionicons name='ellipsis-horizontal' size={16} color={colors.text} />
+					</TouchableOpacity>
+				</View>
+			</TouchableOpacity>
+		)
+	}
+	return (
+		<FlashList
+			// data={searchData.length > 0 ? searchData : data}
+			data={data}
+			renderItem={(item, index) => renderItem(item, index)}
+			estimatedItemSize={data.length}
+			keyExtractor={(item) => item.url}
+			contentContainerStyle={{paddingTop: 16, paddingBottom: 100}}
+			ListHeaderComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+			ListFooterComponent={() => <View style={{height: 1, width: '100%', backgroundColor: colors.textMuted}} />}
+		/>
+	)
+}
+
+export default TrackList
+
+const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 16,
+		paddingVertical: 5,
+	},
+	image: {
+		width: 50,
+		height: 50,
+		borderRadius: 10,
+	},
+	textContainer: {
+		flex: 1,
+	},
+	title: {
+		// width: 220,
+		fontSize: fontSize.sm,
+		fontWeight: '500',
+		color: colors.text,
+	},
+	artist: {
+		fontSize: fontSize.xs,
+		color: colors.textMuted,
+	},
+})
+```
+
+아이템 클릭시
+
+```js
+	onPress={() => {
+					dispatch({type: 'SET_ACTIVE_TRACK', payload: item})
+					dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: index})
+					TrackPlayer.play()
+				}}
+```
+
+를 수행하게 하여 노래 업데이트 및 재생을 하도록 설정.
+
+<img src='./screenshots/5-rn-trackItem.gif' style='width:200px'/>

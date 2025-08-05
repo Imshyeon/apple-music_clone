@@ -1,23 +1,26 @@
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
 import {FlashList} from '@shopify/flash-list'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import TrackPlayer, {useActiveTrack} from 'react-native-track-player'
+import TrackPlayer from 'react-native-track-player'
 
+import {useMusicState, useMusicDispatch} from '../context/musicAppState'
 // import {getMusicData} from '../helper/musicFunctions'
 
 import {defaultArtwork, colors, fontSize} from '../helper/constants'
 
 const TrackList = ({data}) => {
 	// const data = getMusicData()
+	const state = useMusicState()
+	const dispatch = useMusicDispatch()
 
 	const renderItem = ({item, index}) => {
-		// const isActiveTrack = useActiveTrack()?.url === item.url
-
 		return (
 			<TouchableOpacity
 				style={[styles.container]}
 				onPress={() => {
-					console.log('TrackList-item')
+					dispatch({type: 'SET_ACTIVE_TRACK', payload: item})
+					dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: index})
+					TrackPlayer.play()
 				}}
 			>
 				<Image source={item.artwork ? {uri: item.artwork} : defaultArtwork} style={styles.image} />
