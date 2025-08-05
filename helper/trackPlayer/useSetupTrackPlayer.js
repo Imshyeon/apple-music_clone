@@ -5,28 +5,65 @@
 // https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c
 
 import {useEffect, useRef, useState} from 'react'
-import TrackPlayer, {Event, useTrackPlayerEvents} from 'react-native-track-player'
+import TrackPlayer, {Capability, RepeatMode} from 'react-native-track-player'
+
+import trackData from '../../assets/dummy-data.json'
 
 const setupPlayer = async () => {
-	await TrackPlayer.setupPlayer({
-		maxCacheSize: 1024 * 10,
-	})
-
-	await TrackPlayer.setVolume(0.03)
+	try {
+		await TrackPlayer.setupPlayer({
+			maxCacheSize: 1024 * 10,
+		})
+		await TrackPlayer.setVolume(0.03)
+		await TrackPlayer.updateOptions({
+			capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.SeekTo, Capability.Stop],
+			compactCapabilities: [Capability.Play, Capability.Pause],
+		})
+	} catch (e) {
+		console.log('Error setting up player', e)
+	}
 }
 
-export const useSetupTrackPlayer = ({onLoad}) => {
+export const addTracks = async () => {
+	await TrackPlayer.add(trackData)
+	await TrackPlayer.setRepeatMode(RepeatMode.Queue)
+}
+
+// export const getPlayerInfo = async () => {
+// 	const state = (await TrackPlayer.getPlaybackState()).state
+// 	if (state === State.Playing) {
+// 		console.log('The Player is playing')
+// 	}
+
+// 	let trackIndex = await TrackPlayer.getActiveTrackIndex()
+// 	let trackObject = await TrackPlayer.getTrack(trackIndex)
+// 	console.log('The active track is:', trackObject)
+
+// 	const position = await TrackPlayer.getProgress().then((progress) => progress.position)
+// 	const duration = await TrackPlayer.getDuration().then((duration) => duration)
+// 	console.log(`${duration - position} seconds left.`)
+// }
+
+export const useSetupTrackPlayer = ({onLoad, onTrackInfo}) => {
 	const isInitialized = useRef(false)
+	const [tracks, setTracks] = useState(trackData)
 
 	useEffect(() => {
-		setupPlayer()
-			.then(() => {
-				isInitialized.current = true
-				onLoad?.()
-			})
-			.catch((e) => {
-				isInitialized.current = false
-				console.error(e)
-			})
+		handleSetup()
 	}, [onLoad])
+
+	const handleSetup = async () => {
+		try {
+			await setupPlayer()
+			isInitialized.current = true
+			onLoad?.()
+			await addTracks()
+			onTrackInfo?.()
+		} catch (e) {
+			isInitialized.current = false
+			console.error(e)
+		}
+	}
+
+	return tracks
 }

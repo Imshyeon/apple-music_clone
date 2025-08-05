@@ -930,3 +930,206 @@ Expo의 클라우드 서버에서 앱을 빌드. 이렇게 빌드된 파일은 �
 - **빌드 자동화**: Github Actions 등과 연동하여 CI/CD 파이프라인을 구축하기 좋습니다.
 
 <br/>
+
+#### React Native Track Player 초기 세팅
+
+🔗 [React Native Track Player docs](https://rntp.dev/docs/basics/getting-started)<br/>
+🔗 [blog | react native player 세팅하기](https://kevins-world.tistory.com/entry/react-native-track-player-%EC%84%B8%ED%8C%85%ED%95%98%EA%B8%B0-1)<br/>
+🔗 [blog | Implementing react-native-track-player with Expo, including lock screen (Part 1: iOS)](https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c)<br/>
+
+**1. `/helper/trackPlayer/services.js`**
+
+```js
+// https://dev.to/amitkumar13/building-a-custom-music-player-in-react-native-with-react-native-track-player-8gb
+import TrackPlayer, {Event} from 'react-native-track-player'
+
+module.exports = async () => {
+	try {
+		TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
+		TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause())
+		TrackPlayer.addEventListener(Event.RemoteStop, () => TrackPlayer.stop())
+		TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext())
+		TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious())
+		TrackPlayer.addEventListener('remote-seek', async ({position}) => {
+			await TrackPlayer.seekTo(position)
+		})
+	} catch (e) {
+		console.error(e)
+	}
+}
+```
+
+<br/>
+
+**2. `index.js`**
+
+```js
+import {registerRootComponent} from 'expo'
+import TrackPlayer from 'react-native-track-player'
+
+import App from './App'
+
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in Expo Go or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App)
+TrackPlayer.registerPlaybackService(() => require('./helper/trackPlayer/services'))
+```
+
+<br/>
+
+**3. `/helper/trackPlayer/useLogTrackPlayer.js`**
+
+```js
+import TrackPlayer, {Event, useTrackPlayerEvents} from 'react-native-track-player'
+
+const events = [Event.PlaybackState, Event.PlaybackError, Event.RemotePlay, Event.RemotePause, Event.RemoteStop, Event.RemoteNext, Event.RemotePrevious, Event.PlaybackActiveTrackChanged]
+
+export const useLogTrackPlayer = () => {
+	useTrackPlayerEvents(events, async (event) => {
+		if (event.type === Event.PlaybackError) {
+			console.warn('An error occurred while playing the track - event:', event)
+		}
+
+		if (event.type === Event.PlaybackState) {
+			console.log('Playback state changed - event:', event)
+		}
+
+		if (event.type === Event.PlaybackActiveTrackChanged) {
+			console.log('Playback active track changed - event:', event)
+		}
+	})
+}
+```
+
+<br/>
+
+**4. `/helper/trackPlayer/useSetupTrackPlayer.js`**
+
+```js
+// https://velog.io/@blacksooooo/React-native-react-native-track-player%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-%EC%9D%8C%EC%9B%90-%ED%94%8C%EB%A0%88%EC%9D%B4%EC%96%B4-%EB%A7%8C%EB%93%A4%EA%B8%B0
+// https://kevins-world.tistory.com/entry/react-native-track-player-%EC%84%B8%ED%8C%85%ED%95%98%EA%B8%B0-1
+
+// 아래 대로 한번 해보기..
+// https://medium.com/@gionata.brunel/implementing-react-native-track-player-with-expo-including-lock-screen-part-1-ios-9552fea5178c
+
+import {useEffect, useRef, useState} from 'react'
+import TrackPlayer, {Event, useTrackPlayerEvents, Capability, RepeatMode, State} from 'react-native-track-player'
+
+import tracks from '../../assets/dummy-data.json'
+
+const setupPlayer = async () => {
+	try {
+		await TrackPlayer.setupPlayer({
+			maxCacheSize: 1024 * 10,
+		})
+		await TrackPlayer.setVolume(0.03)
+		await TrackPlayer.updateOptions({
+			capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.SeekTo],
+		})
+	} catch (e) {
+		console.log('Error setting up player', e)
+	}
+}
+
+export const addTracks = async () => {
+	await TrackPlayer.add(tracks)
+	await TrackPlayer.setRepeatMode(RepeatMode.Queue)
+}
+
+export const getPlayerInfo = async () => {
+	const state = (await TrackPlayer.getPlaybackState()).state
+	if (state === State.Playing) {
+		console.log('The Player is playing')
+	}
+
+	let trackIndex = await TrackPlayer.getActiveTrackIndex()
+	let trackObject = await TrackPlayer.getTrack(trackIndex)
+	console.log('The active track is:', trackObject)
+
+	const position = await TrackPlayer.getProgress().then((progress) => progress.position)
+	const duration = await TrackPlayer.getDuration().then((duration) => duration)
+	console.log(`${duration - position} seconds left.`)
+}
+
+export const useSetupTrackPlayer = ({onLoad}) => {
+	const isInitialized = useRef(false)
+
+	useEffect(() => {
+		handleSetup()
+	}, [onLoad])
+
+	const handleSetup = async () => {
+		try {
+			await setupPlayer()
+			isInitialized.current = true
+			onLoad?.()
+			await addTracks()
+			await getPlayerInfo()
+		} catch (e) {
+			isInitialized.current = false
+			console.error(e)
+		}
+	}
+}
+```
+
+<br/>
+
+**5. `App.js`**
+
+```js
+import {useCallback} from 'react'
+import {SafeAreaProvider} from 'react-native-safe-area-context'
+import {StatusBar} from 'expo-status-bar'
+import {NavigationContainer} from '@react-navigation/native'
+import * as SplashScreen from 'expo-splash-screen'
+
+SplashScreen.preventAutoHideAsync()
+
+SplashScreen.setOptions({
+	duration: 1000,
+	fade: true,
+})
+
+// Track Player
+import TrackPlayer from 'react-native-track-player'
+
+// import StackNavigator from './navigations/StackNavigator'
+import MainBottomTabNavigator from './navigations/MainBottomTabNavigator'
+import navigationConfig from './navigations/navigationConfig'
+
+import {useSetupTrackPlayer} from './helper/trackPlayer/useSetupTrackPlayer'
+import {useLogTrackPlayer} from './helper/trackPlayer/useLogTrackPlayer'
+
+export default function App() {
+	useLogTrackPlayer()
+
+	const handleTrackPlayerLoad = useCallback(() => {
+		SplashScreen.hideAsync()
+	}, [])
+
+	useSetupTrackPlayer({
+		onLoad: handleTrackPlayerLoad,
+	})
+
+	return (
+		<SafeAreaProvider>
+			<StatusBar style='light' />
+			<NavigationContainer linking={navigationConfig}>
+				<MainBottomTabNavigator />
+			</NavigationContainer>
+		</SafeAreaProvider>
+	)
+}
+```
+
+<br/>
+
+---
+
+```js
+
+```
+
+<br/>

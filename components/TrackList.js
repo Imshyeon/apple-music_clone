@@ -11,7 +11,7 @@ const TrackList = ({data}) => {
 	// const data = getMusicData()
 
 	const renderItem = ({item, index}) => {
-		const isActiveTrack = useActiveTrack()?.url === item.url
+		// const isActiveTrack = useActiveTrack()?.url === item.url
 
 		return (
 			<TouchableOpacity
