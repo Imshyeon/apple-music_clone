@@ -1,4 +1,5 @@
 import {createContext, useReducer, useContext} from 'react'
+import {State} from 'react-native-track-player'
 
 const MusicState = createContext()
 const MusicDispatch = createContext()
@@ -6,6 +7,9 @@ const MusicDispatch = createContext()
 const initialState = {
 	activeTrack: null,
 	activeTrackIndex: 0,
+	playerState: {state: State.None},
+	position: 0,
+	duration: 0,
 }
 
 const reducer = (state, action) => {
@@ -14,6 +18,12 @@ const reducer = (state, action) => {
 			return {...state, activeTrack: action.payload}
 		case 'SET_ACTIVE_TRACK_INDEX':
 			return {...state, activeTrackIndex: action.payload}
+		case 'SET_PLAYER_STATE':
+			return {...state, playerState: action.payload}
+		case 'SET_POSITION':
+			return {...state, position: action.payload}
+		case 'SET_DURATION':
+			return {...state, duration: action.payload}
 		default:
 			return state
 	}

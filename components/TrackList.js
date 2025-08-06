@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
 import {FlashList} from '@shopify/flash-list'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import TrackPlayer from 'react-native-track-player'
+import TrackPlayer, {State} from 'react-native-track-player'
 
 import {useMusicState, useMusicDispatch} from '../context/musicAppState'
 // import {getMusicData} from '../helper/musicFunctions'
@@ -20,6 +20,7 @@ const TrackList = ({data}) => {
 				onPress={() => {
 					dispatch({type: 'SET_ACTIVE_TRACK', payload: item})
 					dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: index})
+					dispatch({type: 'SET_PLAYER_STATE', payload: State.Playing})
 					TrackPlayer.play()
 				}}
 			>

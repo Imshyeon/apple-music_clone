@@ -23,7 +23,7 @@ const SongsStackNavigation = () => {
 			}}
 		>
 			<Stack.Screen name='SongsScreen' options={{title: 'Songs'}} component={SongsScreen} />
-			<Stack.Screen name='SongDetail' component={SongDetailScreen} />
+			<Stack.Screen name='SongDetail' options={{headerShown: false, animation: 'slide_from_bottom', presentation: 'modal'}} component={SongDetailScreen} />
 		</Stack.Navigator>
 	)
 }

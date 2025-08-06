@@ -1403,8 +1403,9 @@ MusicPlayer 뿐만 아니라 TrackList에서 아이템을 클릭했을 때에도
 #### 5-2. `/components/MusicPlayer.js`
 
 ```js
-import {useState, useCallback} from 'react'
+import {useCallback} from 'react'
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native'
+import {useNavigation} from '@react-navigation/native'
 import TrackPlayer, {State, Event, usePlaybackState, useProgress, useTrackPlayerEvents} from 'react-native-track-player'
 import * as SplashScreen from 'expo-splash-screen'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -1426,16 +1427,10 @@ SplashScreen.setOptions({
 const MusicPlayer = ({isMiniPlayer = true}) => {
 	const state = useMusicState()
 	const dispatch = useMusicDispatch()
+	const navigation = useNavigation()
 
 	const playerState = usePlaybackState()
 	const {position, duration} = useProgress()
-
-	console.log(`남은 재생시간: ${duration - position}. trackIndex: ${state.activeTrackIndex}, activeTrack: ${state.activeTrack?.title}`)
-	// useEffect(() => {
-	// 	if (duration - position === 0) {
-	// 		handleNextTrack()
-	// 	}
-	// }, [position, duration])
 
 	// Track Player Log 설정
 	useLogTrackPlayer()
@@ -1461,6 +1456,7 @@ const MusicPlayer = ({isMiniPlayer = true}) => {
 		onTrackInfo: handleTrackInfo,
 	})
 
+	// 이벤트 발생 시, 트랙 정보 업데이트
 	useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
 		console.log('MusicPlayer-useTrackPlayerEvents-event', event)
 		// event의 구조를 살펴보니, event.nextTrack은 없고 lastTrack과 track이 있음
@@ -1471,6 +1467,7 @@ const MusicPlayer = ({isMiniPlayer = true}) => {
 		}
 	})
 
+	// 재생 버튼 클릭 시, 재생 상태 변경
 	const togglePlayback = async (playerState) => {
 		const currentTrack = await TrackPlayer.getActiveTrack()
 		if (currentTrack !== null) {
@@ -1484,6 +1481,7 @@ const MusicPlayer = ({isMiniPlayer = true}) => {
 		}
 	}
 
+	// 다음 트랙 재생
 	const handleNextTrack = async () => {
 		console.log('MusicPlayer-handleNextTrack-trackIndex', state.activeTrackIndex, 'tracks.length', tracks.length)
 		if (state.activeTrackIndex < tracks.length - 1) {
@@ -1492,9 +1490,17 @@ const MusicPlayer = ({isMiniPlayer = true}) => {
 			dispatch({type: 'SET_ACTIVE_TRACK', payload: nextTrack})
 			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: nextTrackIndex})
 			// await TrackPlayer.skipToNext()
+		} else {
+			dispatch({type: 'SET_ACTIVE_TRACK', payload: tracks[0]})
+			dispatch({type: 'SET_ACTIVE_TRACK_INDEX', payload: 0})
 		}
 	}
 
+	const handlePress = () => {
+		navigation.navigate('Songs', {screen: 'SongDetail', params: {sidx: state.activeTrackIndex}})
+	}
+
+	// 미니 플레이어 미사용 시, 화면 출력
 	if (!isMiniPlayer) {
 		return (
 			<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -1503,9 +1509,9 @@ const MusicPlayer = ({isMiniPlayer = true}) => {
 		)
 	}
 
-	// 미니 플레이어 UI
+	// 미니 플레이어 UI 출력
 	return (
-		<TouchableOpacity style={styles.miniPlayerContainer}>
+		<TouchableOpacity style={styles.miniPlayerContainer} onPress={handlePress}>
 			<View style={styles.header}>
 				<Image source={state.activeTrack?.artwork ? {uri: state.activeTrack?.artwork} : defaultArtwork} style={styles.image} />
 				<Text style={styles.title}>{state.activeTrack?.title || '음악을 선택하세요'}</Text>
